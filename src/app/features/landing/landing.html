@@ -1,0 +1,60 @@
+<div class="min-h-screen bg-[#0f0f11] text-gray-100 font-sans flex flex-col">
+  <!-- Navbar Landing -->
+  <header class="border-b border-gray-800/80 bg-[#141416]/60 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div
+          class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold text-lg"
+        >
+          S
+        </div>
+        <span class="font-bold text-white text-lg tracking-tight">
+          Stock<span class="text-emerald-400 font-normal">Mind</span>
+        </span>
+      </div>
+
+      <a
+        routerLink="/app/dashboard"
+        class="text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-black px-4 py-2 rounded-xl transition shadow-lg shadow-emerald-950/20"
+      >
+        Ir a la App
+      </a>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main
+    class="flex-1 max-w-5xl mx-auto px-4 py-20 text-center flex flex-col items-center justify-center"
+  >
+    <span
+      class="text-xs font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full uppercase tracking-widest mb-6"
+    >
+      Gestión de Inventario & Logística con IA
+    </span>
+
+    <h1
+      class="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-tight max-w-3xl"
+    >
+      Control de Stock Inteligente para Tu Empresa
+    </h1>
+
+    <p class="mt-6 text-base sm:text-lg text-gray-400 max-w-2xl">
+      StockMind analiza tus niveles de inventario, automatiza órdenes de compra y procesa facturas
+      al instante utilizando inteligencia artificial.
+    </p>
+
+    <div class="mt-10 flex flex-col sm:flex-row gap-4">
+      <a
+        routerLink="/app/dashboard"
+        class="bg-emerald-600 hover:bg-emerald-500 text-black font-semibold px-6 py-3 rounded-xl transition shadow-lg shadow-emerald-950/30"
+      >
+        Probar Demo Interactiva
+      </a>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-gray-800 py-6 text-center text-xs text-gray-500">
+    StockMind AI Analytics © 2026. Todos los derechos reservados.
+  </footer>
+</div>

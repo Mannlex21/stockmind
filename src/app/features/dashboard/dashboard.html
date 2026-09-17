@@ -1,0 +1,128 @@
+<div class="space-y-6">
+  <!-- Encabezado de la Sección -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-xl sm:text-2xl font-bold text-white tracking-tight">Panel de Control</h1>
+      <p class="text-xs text-gray-400 mt-1">
+        Visión general de inventario, métricas de valor y alertas de stock en tiempo real.
+      </p>
+    </div>
+
+    <a
+      routerLink="/app/scanner"
+      class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-black font-semibold text-xs px-4 py-2.5 rounded-xl transition shadow-lg shadow-emerald-950/20"
+    >
+      <span>✨</span>
+      <span>Escanear Factura con IA</span>
+    </a>
+  </div>
+
+  <!-- Métricas Principales (KPI Cards) -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Valor Total -->
+    <div class="bg-[#141416] border border-gray-800 rounded-xl p-4 space-y-2">
+      <div class="flex items-center justify-between text-xs text-gray-400">
+        <span>Valor del Inventario</span>
+        <span class="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400">💰</span>
+      </div>
+      <div class="text-2xl font-bold text-white">
+        ${{ store.totalInventoryValue() | number: '1.2-2' }}
+      </div>
+      <div class="text-[10px] text-gray-500">Actualizado automáticamente</div>
+    </div>
+
+    <!-- Total de Productos -->
+    <div class="bg-[#141416] border border-gray-800 rounded-xl p-4 space-y-2">
+      <div class="flex items-center justify-between text-xs text-gray-400">
+        <span>Total SKUs</span>
+        <span class="p-1.5 rounded-lg bg-blue-500/10 text-blue-400">📦</span>
+      </div>
+      <div class="text-2xl font-bold text-white">
+        {{ store.products().length }}
+      </div>
+      <div class="text-[10px] text-gray-500">Productos registrados</div>
+    </div>
+
+    <!-- Alertas de Stock Bajo -->
+    <div class="bg-[#141416] border border-gray-800 rounded-xl p-4 space-y-2">
+      <div class="flex items-center justify-between text-xs text-gray-400">
+        <span>Stock Crítico</span>
+        <span class="p-1.5 rounded-lg bg-amber-500/10 text-amber-400">⚠️</span>
+      </div>
+      <div class="text-2xl font-bold text-amber-400">
+        {{ store.lowStockProducts().length }}
+      </div>
+      <div class="text-[10px] text-amber-500/80 font-medium">Requieren reabastecimiento</div>
+    </div>
+
+    <!-- Órdenes Pendientes -->
+    <div class="bg-[#141416] border border-gray-800 rounded-xl p-4 space-y-2">
+      <div class="flex items-center justify-between text-xs text-gray-400">
+        <span>Órdenes IA</span>
+        <span class="p-1.5 rounded-lg bg-purple-500/10 text-purple-400">🛒</span>
+      </div>
+      <div class="text-2xl font-bold text-white">
+        {{ store.purchaseOrders().length }}
+      </div>
+      <div class="text-[10px] text-gray-500">Generadas este mes</div>
+    </div>
+  </div>
+
+  <!-- Tabla de Alertas de Stock Bajo -->
+  <div class="bg-[#141416] border border-gray-800 rounded-xl p-5 space-y-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="text-amber-400">⚠️</span>
+        <h2 class="text-sm font-semibold text-white">Productos cerca del Mínimo</h2>
+      </div>
+
+      <a
+        routerLink="/app/orders"
+        class="text-xs text-emerald-400 hover:text-emerald-300 font-medium transition"
+      >
+        Generar orden con IA &rarr;
+      </a>
+    </div>
+
+    @if (store.lowStockProducts().length === 0) {
+      <div
+        class="text-center py-8 text-xs text-gray-500 border border-dashed border-gray-800 rounded-lg"
+      >
+        No hay productos con stock crítico en este momento.
+      </div>
+    } @else {
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs text-gray-300">
+          <thead
+            class="bg-[#1f1f23] text-gray-400 uppercase text-[10px] tracking-wider border-b border-gray-800"
+          >
+            <tr>
+              <th class="py-3 px-4">SKU</th>
+              <th class="py-3 px-4">Producto</th>
+              <th class="py-3 px-4">Stock Actual</th>
+              <th class="py-3 px-4">Mínimo</th>
+              <th class="py-3 px-4">Proveedor</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-800/60">
+            @for (product of store.lowStockProducts(); track product.id) {
+              <tr class="hover:bg-[#1a1a1e] transition-colors">
+                <td class="py-3 px-4 font-mono text-gray-400">{{ product.sku }}</td>
+                <td class="py-3 px-4 font-medium text-white">{{ product.name }}</td>
+                <td class="py-3 px-4">
+                  <span
+                    class="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-950/60 text-amber-400 border border-amber-900/50"
+                  >
+                    {{ product.stock }} unidades
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-gray-400">{{ product.minStock }}</td>
+                <td class="py-3 px-4 text-gray-400">{{ product.supplier }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>
