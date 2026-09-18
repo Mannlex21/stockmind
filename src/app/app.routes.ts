@@ -7,6 +7,16 @@ export const routes: Routes = [
     loadComponent: () => import('./features/landing/landing').then((m) => m.Landing),
   },
 
+  // Rutas de Autenticación
+  {
+    path: 'login',
+    loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
+  },
+  {
+    path: 'register',
+    loadComponent: () => import('./features/auth/register/register').then((m) => m.Register),
+  },
+
   // Ruta Privada: App Principal con Layout / Sidebar
   {
     path: 'app',
