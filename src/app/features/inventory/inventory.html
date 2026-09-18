@@ -1,1 +1,546 @@
-<p>inventory works!</p>
+<div class="p-6 max-w-7xl mx-auto flex flex-col gap-6">
+  <!-- Encabezado y Acciones Principales -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-white tracking-tight">Gestión de Inventario y Cremería</h1>
+      <p class="text-sm text-zinc-400">
+        Administra productos por unidad base, conversiones de empaque (cajas/carteras) y
+        devoluciones.
+      </p>
+    </div>
+    <div class="flex items-center gap-3">
+      <button
+        (click)="openProductModal()"
+        class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-emerald-900/20 cursor-pointer"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 4v16m8-8H4"
+          ></path>
+        </svg>
+        <span>Nuevo Producto</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Controles de Buscador y Filtros -->
+  <div
+    class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 flex flex-col sm:flex-row items-center gap-4 justify-between backdrop-blur-sm"
+  >
+    <div class="relative w-full sm:w-80">
+      <input
+        type="text"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+        placeholder="Buscar por nombre, SKU o categoría..."
+        class="w-full bg-zinc-950 border border-zinc-800 text-white text-sm rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:border-emerald-500 transition-colors placeholder:text-zinc-600"
+      />
+      <svg
+        class="w-4 h-4 text-zinc-500 absolute left-3 top-3"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+        ></path>
+      </svg>
+    </div>
+
+    <div class="flex items-center gap-2 w-full sm:w-auto">
+      <label class="text-xs text-zinc-400 whitespace-nowrap">Estado:</label>
+      <select
+        [ngModel]="selectedStatus()"
+        (ngModelChange)="selectedStatus.set($event)"
+        class="bg-zinc-950 border border-zinc-800 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-emerald-500 w-full sm:w-auto"
+      >
+        <option value="ALL">Todos</option>
+        <option value="IN_STOCK">En Stock</option>
+        <option value="LOW_STOCK">Stock Bajo</option>
+        <option value="OUT_OF_STOCK">Agotado</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Tabla de Inventario -->
+  <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden backdrop-blur-sm">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm text-zinc-400">
+        <thead class="bg-zinc-950/50 text-xs uppercase text-zinc-400 border-b border-zinc-800">
+          <tr>
+            <th class="px-6 py-4">SKU / Origen</th>
+            <th class="px-6 py-4">Producto</th>
+            <th class="px-6 py-4">Categoría</th>
+            <th class="px-6 py-4">Stock Base y Equivalencias</th>
+            <th class="px-6 py-4">Estado</th>
+            <th class="px-6 py-4 text-right">Precio Base</th>
+            <th class="px-6 py-4 text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-zinc-800/50">
+          @for (product of filteredProducts(); track product.id) {
+            <tr class="hover:bg-zinc-800/30 transition-colors">
+              <td class="px-6 py-4">
+                <div class="font-mono text-xs text-zinc-200">{{ product.sku }}</div>
+                <div class="text-[10px] mt-0.5">
+                  @if (product.entryMode === 'AI_GENERATED' || product.entryMode === 'AI_EDITED') {
+                    <span class="text-emerald-400 font-medium">✨ Extraído por IA</span>
+                  } @else {
+                    <span class="text-zinc-500">✏️ Captura Manual</span>
+                  }
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="font-medium text-white">{{ product.name }}</div>
+                <!-- Mostrar presentaciones registradas -->
+                @if (product.presentations && product.presentations.length > 0) {
+                  <div class="flex flex-wrap gap-1 mt-1">
+                    @for (pres of product.presentations; track pres.id) {
+                      <span
+                        class="px-1.5 py-0.5 text-[10px] bg-zinc-800 text-zinc-300 rounded border border-zinc-700"
+                      >
+                        {{ pres.name }} ({{ pres.baseConversionFactor }} {{ product.baseUnit }})
+                      </span>
+                    }
+                  </div>
+                }
+              </td>
+              <td class="px-6 py-4">{{ product.category }}</td>
+              <td class="px-6 py-4">
+                <div class="font-semibold text-white">
+                  {{ product.stock | number: (product.baseUnit === 'PCS' ? '1.0-0' : '1.2-2') }}
+                  <span class="text-xs text-emerald-400 font-normal uppercase">{{
+                    product.baseUnit
+                  }}</span>
+                </div>
+                <div class="text-[10px] text-zinc-500">
+                  Mínimo: {{ product.minStock }} {{ product.baseUnit }}
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                @switch (product.status) {
+                  @case ('IN_STOCK') {
+                    <span
+                      class="px-2.5 py-1 text-xs font-medium bg-emerald-950 text-emerald-400 rounded-full border border-emerald-800/50"
+                      >En Stock</span
+                    >
+                  }
+                  @case ('LOW_STOCK') {
+                    <span
+                      class="px-2.5 py-1 text-xs font-medium bg-amber-950 text-amber-400 rounded-full border border-amber-800/50"
+                      >Stock Bajo</span
+                    >
+                  }
+                  @case ('OUT_OF_STOCK') {
+                    <span
+                      class="px-2.5 py-1 text-xs font-medium bg-rose-950 text-rose-400 rounded-full border border-rose-800/50"
+                      >Agotado</span
+                    >
+                  }
+                }
+              </td>
+              <td class="px-6 py-4 text-right font-mono text-white">
+                ${{ product.unitPrice | number: '1.2-2' }} / {{ product.baseUnit }}
+              </td>
+              <td class="px-6 py-4 text-center">
+                <div class="flex items-center justify-center gap-1.5">
+                  <button
+                    (click)="openReturnModal(product)"
+                    class="p-1.5 text-zinc-400 hover:text-amber-400 transition-colors cursor-pointer"
+                    title="Registrar Devolución / Merma"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M16 15v-1a4 4 0 00-4-4H4m0 0l4-4m-4 4l4 4m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                      ></path>
+                    </svg>
+                  </button>
+                  <button
+                    (click)="openProductModal(product)"
+                    class="p-1.5 text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                    title="Editar Producto"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      ></path>
+                    </svg>
+                  </button>
+                  <button
+                    (click)="deleteProduct(product.id)"
+                    class="p-1.5 text-zinc-400 hover:text-rose-400 transition-colors cursor-pointer"
+                    title="Eliminar"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      ></path>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="px-6 py-8 text-center text-zinc-500">
+                No se encontraron productos en el inventario.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MODAL DE CAPTURA Y EDICIÓN MANUAL -->
+  @if (isProductModalOpen()) {
+    <div
+      class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-xs"
+    >
+      <div
+        class="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col"
+      >
+        <div class="p-5 border-b border-zinc-800 flex items-center justify-between">
+          <h3 class="text-lg font-bold text-white">
+            {{ editingProduct()?.id ? 'Editar Producto' : 'Nuevo Producto Manual' }}
+          </h3>
+          <button
+            (click)="closeProductModal()"
+            class="text-zinc-400 hover:text-white p-1 cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div class="p-6 flex flex-col gap-5 max-h-[80vh] overflow-y-auto">
+          <!-- Datos Primarios -->
+          <div class="grid grid-cols-3 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-medium text-zinc-300">SKU</label>
+              <input
+                type="text"
+                [(ngModel)]="editingProduct()!.sku"
+                placeholder="PROD-000"
+                class="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+              />
+            </div>
+            <div class="col-span-2 flex flex-col gap-1.5">
+              <label class="text-xs font-medium text-zinc-300">Nombre del Producto</label>
+              <input
+                type="text"
+                [(ngModel)]="editingProduct()!.name"
+                placeholder="Ej. Huevo Blanco, Crema de Rancho"
+                class="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-medium text-zinc-300">Categoría</label>
+              <input
+                type="text"
+                [(ngModel)]="editingProduct()!.category"
+                placeholder="Lácteos, Abarrotes, etc."
+                class="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+              />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-medium text-zinc-300">Proveedor</label>
+              <input
+                type="text"
+                [(ngModel)]="editingProduct()!.supplier"
+                placeholder="Nombre del Proveedor"
+                class="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+              />
+            </div>
+          </div>
+
+          <!-- Configuración de Unidad Base -->
+          <div class="bg-zinc-950 p-4 rounded-xl border border-zinc-800/80 flex flex-col gap-3">
+            <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider"
+              >Unidad Base de Almacén</span
+            >
+            <div class="grid grid-cols-4 gap-3">
+              <div class="flex flex-col gap-1">
+                <label class="text-[11px] text-zinc-400">Unidad Base</label>
+                <select
+                  [(ngModel)]="editingProduct()!.baseUnit"
+                  class="bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
+                >
+                  <option value="PCS">Pieza (PCS)</option>
+                  <option value="KG">Kilo (KG)</option>
+                  <option value="G">Gramo (G)</option>
+                  <option value="L">Litro (L)</option>
+                  <option value="ML">Mililitro (ML)</option>
+                </select>
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="text-[11px] text-zinc-400">Stock Inicial</label>
+                <input
+                  type="number"
+                  [(ngModel)]="editingProduct()!.stock"
+                  class="bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="text-[11px] text-zinc-400">Stock Mínimo</label>
+                <input
+                  type="number"
+                  [(ngModel)]="editingProduct()!.minStock"
+                  class="bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="text-[11px] text-zinc-400">Precio Base ($)</label>
+                <input
+                  type="number"
+                  [(ngModel)]="editingProduct()!.unitPrice"
+                  class="bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Presentaciones / Conversiones -->
+          <div class="flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold text-zinc-300"
+                >Presentaciones y Conversiones (Carteras, Cajas, Botes)</label
+              >
+              <button
+                (click)="addPresentation()"
+                class="text-xs text-emerald-400 hover:text-emerald-300 font-medium flex items-center gap-1 cursor-pointer"
+              >
+                + Agregar Presentación
+              </button>
+            </div>
+
+            @for (pres of editingProduct()?.presentations; track $index) {
+              <div
+                class="bg-zinc-950 p-3 rounded-lg border border-zinc-800/60 grid grid-cols-12 gap-2 items-center"
+              >
+                <div class="col-span-4 flex flex-col gap-1">
+                  <input
+                    type="text"
+                    [(ngModel)]="pres.name"
+                    placeholder="Nombre (ej. Cartera)"
+                    class="bg-zinc-900 border border-zinc-800 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+                <div class="col-span-4 flex items-center gap-1">
+                  <span class="text-[10px] text-zinc-500">=</span>
+                  <input
+                    type="number"
+                    [(ngModel)]="pres.baseConversionFactor"
+                    class="bg-zinc-900 border border-zinc-800 rounded px-2 py-1 text-xs text-white w-full focus:outline-none focus:border-emerald-500"
+                  />
+                  <span class="text-[10px] text-zinc-400 uppercase">{{
+                    editingProduct()?.baseUnit
+                  }}</span>
+                </div>
+                <div class="col-span-3 flex items-center gap-1">
+                  <span class="text-[10px] text-zinc-500">$</span>
+                  <input
+                    type="number"
+                    [(ngModel)]="pres.price"
+                    placeholder="Precio"
+                    class="bg-zinc-900 border border-zinc-800 rounded px-2 py-1 text-xs text-white w-full focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+                <div class="col-span-1 text-right">
+                  <button
+                    (click)="removePresentation($index)"
+                    class="text-zinc-500 hover:text-rose-400 text-xs"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+            } @empty {
+              <div
+                class="p-3 text-center border border-dashed border-zinc-800 rounded-lg text-xs text-zinc-600"
+              >
+                No hay presentaciones registradas (Se venderá/comprará únicamente por unidad base).
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="p-4 bg-zinc-950/50 border-t border-zinc-800 flex justify-end gap-3">
+          <button
+            (click)="closeProductModal()"
+            class="px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer"
+          >
+            Cancelar
+          </button>
+          <button
+            (click)="saveProduct()"
+            class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors shadow-lg shadow-emerald-900/20 cursor-pointer"
+          >
+            Guardar
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- MODAL DE REGISTRO DE DEVOLUCIONES Y MERMAS -->
+  @if (isReturnModalOpen()) {
+    <div
+      class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-xs"
+    >
+      <div
+        class="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col"
+      >
+        <div class="p-5 border-b border-zinc-800 flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-bold text-white">Registrar Devolución / Merma</h3>
+            <p class="text-xs text-zinc-400">{{ selectedProductForReturn()?.name }}</p>
+          </div>
+          <button
+            (click)="closeReturnModal()"
+            class="text-zinc-400 hover:text-white p-1 cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div class="p-6 flex flex-col gap-4">
+          <!-- Tipo de Devolución -->
+          <div class="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              (click)="returnType.set('CUSTOMER_RETURN')"
+              [class.bg-emerald-950]="returnType() === 'CUSTOMER_RETURN'"
+              [class.border-emerald-700]="returnType() === 'CUSTOMER_RETURN'"
+              [class.text-emerald-400]="returnType() === 'CUSTOMER_RETURN'"
+              class="p-3 border border-zinc-800 rounded-xl text-xs font-medium text-zinc-400 hover:bg-zinc-800/50 text-center transition-all cursor-pointer"
+            >
+              📥 Devolución de Cliente
+            </button>
+            <button
+              type="button"
+              (click)="returnType.set('SUPPLIER_RETURN')"
+              [class.bg-amber-950]="returnType() === 'SUPPLIER_RETURN'"
+              [class.border-amber-700]="returnType() === 'SUPPLIER_RETURN'"
+              [class.text-amber-400]="returnType() === 'SUPPLIER_RETURN'"
+              class="p-3 border border-zinc-800 rounded-xl text-xs font-medium text-zinc-400 hover:bg-zinc-800/50 text-center transition-all cursor-pointer"
+            >
+              📤 Devolución a Proveedor
+            </button>
+          </div>
+
+          <!-- Presentación y Cantidad -->
+          <div class="grid grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-medium text-zinc-300">Presentación Devuelta</label>
+              <select
+                [ngModel]="returnPresentationId()"
+                (ngModelChange)="returnPresentationId.set($event)"
+                class="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+              >
+                <option value="">Unidad Base ({{ selectedProductForReturn()?.baseUnit }})</option>
+                @for (pres of selectedProductForReturn()?.presentations; track pres.id) {
+                  <option [value]="pres.id">
+                    {{ pres.name }} ({{ pres.baseConversionFactor }}
+                    {{ selectedProductForReturn()?.baseUnit }})
+                  </option>
+                }
+              </select>
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-medium text-zinc-300">Cantidad</label>
+              <input
+                type="number"
+                [ngModel]="returnQuantity()"
+                (ngModelChange)="returnQuantity.set($event)"
+                min="1"
+                class="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+              />
+            </div>
+          </div>
+
+          <!-- Razón de la Devolución -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-medium text-zinc-300">Motivo</label>
+            <select
+              [ngModel]="returnReason()"
+              (ngModelChange)="returnReason.set($event)"
+              class="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+            >
+              <option value="DAMAGED">Producto Dañado / Roto</option>
+              <option value="EXPIRED">Producto Caducado / Vencido</option>
+              <option value="WRONG_ITEM">Producto Incorrecto</option>
+              <option value="CUSTOMER_REFUND">Reembolso General</option>
+            </select>
+          </div>
+
+          <!-- Opción de Reingreso al Stock (Solo para devolución de cliente) -->
+          @if (returnType() === 'CUSTOMER_RETURN') {
+            <div
+              class="flex items-center gap-3 p-3 bg-zinc-950 rounded-lg border border-zinc-800/80"
+            >
+              <input
+                type="checkbox"
+                id="restockCheck"
+                [ngModel]="restockInventory()"
+                (ngModelChange)="restockInventory.set($event)"
+                class="w-4 h-4 rounded accent-emerald-500 cursor-pointer"
+              />
+              <label for="restockCheck" class="text-xs text-zinc-300 cursor-pointer">
+                ¿Volver a sumar este producto al stock vendible? <br />
+                <span class="text-[10px] text-zinc-500"
+                  >(Desmarcar si el producto es merma o está echado a perder)</span
+                >
+              </label>
+            </div>
+          }
+
+          <!-- Notas Adicionales -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-medium text-zinc-300">Notas u Observaciones</label>
+            <textarea
+              [ngModel]="returnNotes()"
+              (ngModelChange)="returnNotes.set($event)"
+              rows="2"
+              placeholder="Detalles sobre el estado del producto..."
+              class="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 placeholder:text-zinc-600 resize-none"
+            >
+            </textarea>
+          </div>
+        </div>
+
+        <div class="p-4 bg-zinc-950/50 border-t border-zinc-800 flex justify-end gap-3">
+          <button
+            (click)="closeReturnModal()"
+            class="px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer"
+          >
+            Cancelar
+          </button>
+          <button
+            (click)="processReturn()"
+            class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors shadow-lg shadow-emerald-900/20 cursor-pointer"
+          >
+            Procesar Registro
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

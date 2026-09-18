@@ -1,128 +1,107 @@
-<div class="space-y-6">
-  <!-- Encabezado de la Sección -->
+<div class="p-6 max-w-7xl mx-auto flex flex-col gap-8">
+  <!-- Encabezado -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div>
-      <h1 class="text-xl sm:text-2xl font-bold text-white tracking-tight">Panel de Control</h1>
-      <p class="text-xs text-gray-400 mt-1">
-        Visión general de inventario, métricas de valor y alertas de stock en tiempo real.
+      <h1 class="text-2xl font-bold text-white tracking-tight">Panel de Control</h1>
+      <p class="text-sm text-zinc-400">
+        Resumen del estado del inventario y métricas en tiempo real.
       </p>
     </div>
-
-    <a
-      routerLink="/app/scanner"
-      class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-black font-semibold text-xs px-4 py-2.5 rounded-xl transition shadow-lg shadow-emerald-950/20"
-    >
-      <span>✨</span>
-      <span>Escanear Factura con IA</span>
-    </a>
-  </div>
-
-  <!-- Métricas Principales (KPI Cards) -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-    <!-- Valor Total -->
-    <div class="bg-[#141416] border border-gray-800 rounded-xl p-4 space-y-2">
-      <div class="flex items-center justify-between text-xs text-gray-400">
-        <span>Valor del Inventario</span>
-        <span class="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400">💰</span>
-      </div>
-      <div class="text-2xl font-bold text-white">
-        ${{ store.totalInventoryValue() | number: '1.2-2' }}
-      </div>
-      <div class="text-[10px] text-gray-500">Actualizado automáticamente</div>
-    </div>
-
-    <!-- Total de Productos -->
-    <div class="bg-[#141416] border border-gray-800 rounded-xl p-4 space-y-2">
-      <div class="flex items-center justify-between text-xs text-gray-400">
-        <span>Total SKUs</span>
-        <span class="p-1.5 rounded-lg bg-blue-500/10 text-blue-400">📦</span>
-      </div>
-      <div class="text-2xl font-bold text-white">
-        {{ store.products().length }}
-      </div>
-      <div class="text-[10px] text-gray-500">Productos registrados</div>
-    </div>
-
-    <!-- Alertas de Stock Bajo -->
-    <div class="bg-[#141416] border border-gray-800 rounded-xl p-4 space-y-2">
-      <div class="flex items-center justify-between text-xs text-gray-400">
-        <span>Stock Crítico</span>
-        <span class="p-1.5 rounded-lg bg-amber-500/10 text-amber-400">⚠️</span>
-      </div>
-      <div class="text-2xl font-bold text-amber-400">
-        {{ store.lowStockProducts().length }}
-      </div>
-      <div class="text-[10px] text-amber-500/80 font-medium">Requieren reabastecimiento</div>
-    </div>
-
-    <!-- Órdenes Pendientes -->
-    <div class="bg-[#141416] border border-gray-800 rounded-xl p-4 space-y-2">
-      <div class="flex items-center justify-between text-xs text-gray-400">
-        <span>Órdenes IA</span>
-        <span class="p-1.5 rounded-lg bg-purple-500/10 text-purple-400">🛒</span>
-      </div>
-      <div class="text-2xl font-bold text-white">
-        {{ store.purchaseOrders().length }}
-      </div>
-      <div class="text-[10px] text-gray-500">Generadas este mes</div>
-    </div>
-  </div>
-
-  <!-- Tabla de Alertas de Stock Bajo -->
-  <div class="bg-[#141416] border border-gray-800 rounded-xl p-5 space-y-4">
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <span class="text-amber-400">⚠️</span>
-        <h2 class="text-sm font-semibold text-white">Productos cerca del Mínimo</h2>
-      </div>
-
+    <div class="flex items-center gap-3">
       <a
-        routerLink="/app/orders"
-        class="text-xs text-emerald-400 hover:text-emerald-300 font-medium transition"
+        routerLink="/app/scanner"
+        class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium py-2.5 px-4 rounded-lg transition-colors flex items-center gap-2 cursor-pointer shadow-lg shadow-emerald-900/20"
       >
-        Generar orden con IA &rarr;
+        <span>Escanear Factura (IA)</span>
       </a>
     </div>
+  </div>
 
-    @if (store.lowStockProducts().length === 0) {
-      <div
-        class="text-center py-8 text-xs text-gray-500 border border-dashed border-gray-800 rounded-lg"
+  <!-- Métricas KPI -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 flex flex-col gap-1">
+      <span class="text-xs font-medium text-zinc-400">Total Productos</span>
+      <span class="text-2xl font-bold text-white">{{ stats().totalProducts }}</span>
+    </div>
+
+    <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 flex flex-col gap-1">
+      <span class="text-xs font-medium text-amber-400">Stock Crítico / Alertas</span>
+      <span class="text-2xl font-bold text-amber-500">{{ stats().lowStockCount }}</span>
+    </div>
+
+    <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 flex flex-col gap-1">
+      <span class="text-xs font-medium text-zinc-400">Valor Total Almacén</span>
+      <span class="text-2xl font-bold text-white">${{ stats().totalValue | number: '1.2-2' }}</span>
+    </div>
+
+    <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 flex flex-col gap-1">
+      <span class="text-xs font-medium text-emerald-400">Órdenes Generadas</span>
+      <span class="text-2xl font-bold text-emerald-500">{{ stats().pendingOrders }}</span>
+    </div>
+  </div>
+
+  <!-- Tabla de Productos Recientes -->
+  <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden">
+    <div class="p-5 border-b border-zinc-800 flex items-center justify-between">
+      <h2 class="text-base font-semibold text-white">Alertas de Inventario</h2>
+      <a
+        routerLink="/app/inventory"
+        class="text-xs text-emerald-500 hover:text-emerald-400 font-medium"
+        >Ver todo el inventario →</a
       >
-        No hay productos con stock crítico en este momento.
-      </div>
-    } @else {
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs text-gray-300">
-          <thead
-            class="bg-[#1f1f23] text-gray-400 uppercase text-[10px] tracking-wider border-b border-gray-800"
-          >
-            <tr>
-              <th class="py-3 px-4">SKU</th>
-              <th class="py-3 px-4">Producto</th>
-              <th class="py-3 px-4">Stock Actual</th>
-              <th class="py-3 px-4">Mínimo</th>
-              <th class="py-3 px-4">Proveedor</th>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm text-zinc-400">
+        <thead class="bg-zinc-950/50 text-xs uppercase text-zinc-400 border-b border-zinc-800">
+          <tr>
+            <th class="px-6 py-4">SKU</th>
+            <th class="px-6 py-4">Producto</th>
+            <th class="px-6 py-4">Categoría</th>
+            <th class="px-6 py-4">Stock Actual</th>
+            <th class="px-6 py-4">Estado</th>
+            <th class="px-6 py-4 text-right">Precio Un.</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-zinc-800/50">
+          @for (product of recentProducts(); track product.id) {
+            <tr class="hover:bg-zinc-800/30 transition-colors">
+              <td class="px-6 py-4 font-mono text-xs text-zinc-300">{{ product.sku }}</td>
+              <td class="px-6 py-4 font-medium text-white">{{ product.name }}</td>
+              <td class="px-6 py-4">{{ product.category }}</td>
+              <td class="px-6 py-4 font-semibold text-white">
+                {{ product.stock }} /
+                <span class="text-zinc-500 text-xs">{{ product.minStock }}</span>
+              </td>
+              <td class="px-6 py-4">
+                @switch (product.status) {
+                  @case ('IN_STOCK') {
+                    <span
+                      class="px-2.5 py-1 text-xs font-medium bg-emerald-950 text-emerald-400 rounded-full border border-emerald-800/50"
+                      >En Stock</span
+                    >
+                  }
+                  @case ('LOW_STOCK') {
+                    <span
+                      class="px-2.5 py-1 text-xs font-medium bg-amber-950 text-amber-400 rounded-full border border-amber-800/50"
+                      >Stock Bajo</span
+                    >
+                  }
+                  @case ('OUT_OF_STOCK') {
+                    <span
+                      class="px-2.5 py-1 text-xs font-medium bg-rose-950 text-rose-400 rounded-full border border-rose-800/50"
+                      >Agotado</span
+                    >
+                  }
+                }
+              </td>
+              <td class="px-6 py-4 text-right font-mono text-white">
+                ${{ product.unitPrice | number: '1.2-2' }}
+              </td>
             </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-800/60">
-            @for (product of store.lowStockProducts(); track product.id) {
-              <tr class="hover:bg-[#1a1a1e] transition-colors">
-                <td class="py-3 px-4 font-mono text-gray-400">{{ product.sku }}</td>
-                <td class="py-3 px-4 font-medium text-white">{{ product.name }}</td>
-                <td class="py-3 px-4">
-                  <span
-                    class="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-950/60 text-amber-400 border border-amber-900/50"
-                  >
-                    {{ product.stock }} unidades
-                  </span>
-                </td>
-                <td class="py-3 px-4 text-gray-400">{{ product.minStock }}</td>
-                <td class="py-3 px-4 text-gray-400">{{ product.supplier }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    }
+          }
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

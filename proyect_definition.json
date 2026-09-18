@@ -1,0 +1,106 @@
+{
+  "projectName": "StockMind",
+  "version": "0.1.0",
+  "description": "SaaS de gestión de inventario y logística inteligente con enfoque híbrido (Manual + IA).",
+  "architecture": {
+    "frontend": {
+      "framework": "Angular 18+ (Standalone Components, Signals)",
+      "styling": "Tailwind CSS v4",
+      "uiComponents": "PrimeNG",
+      "deploymentTarget": "Vercel (Free Tier)"
+    },
+    "backend": {
+      "framework": "C# .NET (ASP.NET Core Web API)",
+      "orm": "Entity Framework Core",
+      "deploymentTarget": "Render Web Services (Free Tier / Docker)"
+    },
+    "database": {
+      "engine": "PostgreSQL",
+      "provider": "Neon DB (Serverless / Pooled Connection)"
+    },
+    "aiIntegration": {
+      "sdk": "@google/genai (Gemini SDK)",
+      "features": [
+        "Escaneo y extracción de datos de facturas/remisiones",
+        "Sugerencias automáticas de reabastecimiento"
+      ]
+    }
+  },
+  "progress": {
+    "completed": [
+      "Configuración e integración de Tailwind CSS v4 con Angular 18",
+      "Rutas públicas: Landing Page, Login y Registro",
+      "Rutas privadas anidadas bajo el layout (/app/dashboard, /app/inventory, etc.)",
+      "Componente de Layout responsivo con Sidebar, Topbar móvil y menú interactivo",
+      "Dashboard principal con KPIs y tabla de alertas de stock usando Signals",
+      "Modelos de datos e interfaces de TypeScript fuertemente tipadas",
+      "Estrategia de captura de datos híbrida (Manual + IA con trazabilidad)"
+    ],
+    "pending": [
+      "Módulo Scanner de Facturas (IA + Formulario de revisión y edición manual)",
+      "Tabla completa de inventario con filtros, ordenamiento y CRUD manual",
+      "Integración de Gemini SDK en el cliente/servidor",
+      "Construcción de la Web API en C# .NET y migraciones con EF Core hacia Neon DB"
+    ]
+  },
+  "dataModels": {
+    "types": {
+      "ProductStatus": ["IN_STOCK", "LOW_STOCK", "OUT_OF_STOCK"],
+      "OrderStatus": ["draft", "sent", "completed"],
+      "DataEntryMode": ["MANUAL", "AI_GENERATED", "AI_EDITED"]
+    },
+    "interfaces": {
+      "Product": {
+        "id": "string",
+        "sku": "string",
+        "name": "string",
+        "category": "string",
+        "stock": "number",
+        "minStock": "number",
+        "unitPrice": "number",
+        "supplier": "string",
+        "lastUpdated": "Date | string",
+        "status": "ProductStatus (optional)",
+        "entryMode": "DataEntryMode (optional)"
+      },
+      "PurchaseOrderItem": {
+        "productId": "string",
+        "productName": "string",
+        "quantityToOrder": "number",
+        "estimatedCost": "number",
+        "supplier": "string"
+      },
+      "PurchaseOrder": {
+        "id": "string",
+        "date": "Date | string",
+        "items": "PurchaseOrderItem[]",
+        "totalCost": "number",
+        "status": "OrderStatus"
+      },
+      "InvoiceItemScan": {
+        "description": "string",
+        "sku": "string (optional)",
+        "quantity": "number",
+        "unitPrice": "number",
+        "totalPrice": "number",
+        "matchedProductId": "string (optional)",
+        "confidenceScore": "number (optional)",
+        "isManuallyVerified": "boolean"
+      },
+      "InvoiceScanResult": {
+        "invoiceNumber": "string",
+        "supplierName": "string",
+        "issueDate": "string",
+        "totalAmount": "number",
+        "items": "InvoiceItemScan[]",
+        "rawText": "string (optional)"
+      },
+      "InventoryStats": {
+        "totalProducts": "number",
+        "lowStockCount": "number",
+        "totalValue": "number",
+        "pendingOrders": "number"
+      }
+    }
+  }
+}
