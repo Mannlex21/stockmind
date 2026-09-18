@@ -2,6 +2,18 @@ import { Component, signal } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
+// Directivas / Componentes de Íconos Lucide
+import {
+  LucideLayoutDashboard,
+  LucidePackage,
+  LucideWarehouse,
+  LucideScan,
+  LucideShoppingCart,
+  LucideSettings,
+  LucideMenu,
+  LucideLogOut,
+} from '@lucide/angular';
+
 @Component({
   selector: 'app-layout',
   standalone: true,
@@ -9,16 +21,21 @@ import { CommonModule } from '@angular/common';
   templateUrl: './layout.html',
 })
 export class Layout {
-  // Estado para el menú lateral en pantallas móviles
   isMobileMenuOpen = signal(false);
 
+  // Mapeamos directamente el componente del ícono
   navItems = [
-    { label: 'Panel Principal', route: '/app/dashboard', icon: 'dashboard' },
-    { label: 'Inventario', route: '/app/inventory', icon: 'box' },
-    { label: 'Escanear Factura (IA)', route: '/app/scanner', icon: 'scan' },
-    { label: 'Órdenes de Compra', route: '/app/orders', icon: 'shopping-cart' },
-    { label: 'Configuración', route: '/app/settings', icon: 'settings' },
+    { label: 'Panel Principal', route: '/app/dashboard', icon: LucideLayoutDashboard },
+    { label: 'Inventario', route: '/app/inventory', icon: LucidePackage },
+    { label: 'Almacenes', route: '/app/warehouses', icon: LucideWarehouse },
+    { label: 'Escanear Factura (IA)', route: '/app/scanner', icon: LucideScan },
+    { label: 'Órdenes de Compra', route: '/app/orders', icon: LucideShoppingCart },
+    { label: 'Configuración', route: '/app/settings', icon: LucideSettings },
   ];
+
+  // Exponemos los íconos estáticos
+  readonly menuIcon = LucideMenu;
+  readonly logoutIcon = LucideLogOut;
 
   toggleMobileMenu() {
     this.isMobileMenuOpen.update((val) => !val);

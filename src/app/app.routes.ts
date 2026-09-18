@@ -32,6 +32,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/inventory/inventory').then((m) => m.Inventory),
       },
       {
+        path: 'warehouses',
+        loadComponent: () =>
+          import('./features/warehouses/warehouses.component').then((m) => m.WarehousesComponent),
+      },
+      {
         path: 'scanner',
         loadComponent: () => import('./features/scanner/scanner').then((m) => m.Scanner),
       },
