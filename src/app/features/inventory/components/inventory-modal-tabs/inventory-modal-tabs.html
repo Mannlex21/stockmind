@@ -1,0 +1,407 @@
+<!-- Navegación de Pestañas -->
+<div class="flex border-b border-zinc-800 bg-zinc-950/80 px-6 gap-6 text-xs font-semibold">
+  <button
+    (click)="store.activeModalTab.set('general')"
+    [class.border-emerald-500]="store.activeModalTab() === 'general'"
+    [class.text-emerald-400]="store.activeModalTab() === 'general'"
+    [class.text-zinc-400]="store.activeModalTab() !== 'general'"
+    class="py-3 border-b-2 border-transparent transition-colors cursor-pointer"
+  >
+    Artículos / Datos Generales
+  </button>
+  <button
+    (click)="store.activeModalTab.set('prices')"
+    [class.border-emerald-500]="store.activeModalTab() === 'prices'"
+    [class.text-emerald-400]="store.activeModalTab() === 'prices'"
+    [class.text-zinc-400]="store.activeModalTab() !== 'prices'"
+    class="py-3 border-b-2 border-transparent transition-colors cursor-pointer"
+  >
+    Precios y Costes
+  </button>
+  <button
+    (click)="store.activeModalTab.set('stock')"
+    [class.border-emerald-500]="store.activeModalTab() === 'stock'"
+    [class.text-emerald-400]="store.activeModalTab() === 'stock'"
+    [class.text-zinc-400]="store.activeModalTab() !== 'stock'"
+    class="py-3 border-b-2 border-transparent transition-colors cursor-pointer flex items-center gap-1"
+  >
+    <span>Stock / Almacén</span>
+    @if (!product()?.trackStock) {
+      <span class="text-[9px] bg-amber-950 text-amber-400 border border-amber-800 px-1 rounded"
+        >No aplica</span
+      >
+    }
+  </button>
+  <button
+    (click)="store.activeModalTab.set('presentations')"
+    [class.border-emerald-500]="store.activeModalTab() === 'presentations'"
+    [class.text-emerald-400]="store.activeModalTab() === 'presentations'"
+    [class.text-zinc-400]="store.activeModalTab() !== 'presentations'"
+    class="py-3 border-b-2 border-transparent transition-colors cursor-pointer"
+  >
+    Presentaciones y TPV
+  </button>
+</div>
+
+<!-- Cuerpo Activo de Pestañas -->
+<div class="p-6 flex flex-col gap-5 max-h-[70vh] overflow-y-auto">
+  @if (product()) {
+    <!-- TAB 1: DATOS GENERALES -->
+    @if (store.activeModalTab() === 'general') {
+      <div class="grid grid-cols-3 gap-4">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-medium text-zinc-300">Referencia (SKU)</label>
+          <input
+            type="text"
+            [(ngModel)]="product()!.sku"
+            placeholder="860_EVO"
+            class="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 font-mono"
+          />
+        </div>
+        <div class="col-span-2 flex flex-col gap-1.5">
+          <label class="text-xs font-medium text-zinc-300">Descripción / Nombre</label>
+          <input
+            type="text"
+            [(ngModel)]="product()!.name"
+            placeholder="Samsung 860 EVO Basic SSD 250GB SATA3"
+            class="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+          />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-4">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-medium text-zinc-300">Familia / Categoría</label>
+          <input
+            type="text"
+            [(ngModel)]="product()!.category"
+            placeholder="INFORMATICA, LACTEOS"
+            class="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+          />
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-medium text-zinc-300">Subfamilia</label>
+          <input
+            type="text"
+            [(ngModel)]="product()!.subcategory"
+            placeholder="ALMACENAMIENTO, CREMAS"
+            class="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+          />
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-medium text-zinc-300">Marca</label>
+          <input
+            type="text"
+            [(ngModel)]="product()!.brand"
+            placeholder="Samsung, La Costeña"
+            class="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+          />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-medium text-zinc-300">Proveedor Principal</label>
+          <input
+            type="text"
+            [(ngModel)]="product()!.supplier"
+            placeholder="Distribuidora S.A."
+            class="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+          />
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-medium text-zinc-300">Código de Barras (EAN)</label>
+          <input
+            type="text"
+            [ngModel]="product()!.barcodes?.[0] || ''"
+            (ngModelChange)="product()!.barcodes = [$event]"
+            placeholder="3213131313568"
+            class="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 font-mono"
+          />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3 p-3 bg-zinc-950 rounded-xl border border-zinc-800 mt-2">
+        <label class="flex items-center gap-2 cursor-pointer text-xs text-white">
+          <input
+            type="checkbox"
+            [(ngModel)]="product()!.isActive"
+            class="w-4 h-4 rounded accent-emerald-500"
+          />
+          <span>Activo (SI / NO)</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer text-xs text-white">
+          <input
+            type="checkbox"
+            [(ngModel)]="product()!.useInPOS"
+            class="w-4 h-4 rounded accent-emerald-500"
+          />
+          <span>Usar en TPV / Caja</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer text-xs text-amber-400 font-medium">
+          <input
+            type="checkbox"
+            [(ngModel)]="product()!.trackStock"
+            class="w-4 h-4 rounded accent-emerald-500"
+          />
+          <span>Control de Stock</span>
+        </label>
+      </div>
+    }
+
+    <!-- TAB 2: PRECIOS Y COSTES -->
+    @if (store.activeModalTab() === 'prices') {
+      <div class="bg-zinc-950 p-4 rounded-xl border border-zinc-800 flex flex-col gap-4">
+        <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider"
+          >Desglose Impositivo y Precios</span
+        >
+
+        <div class="grid grid-cols-3 gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs text-zinc-300 font-medium">% IVA Aplicable</label>
+            <input
+              type="number"
+              [ngModel]="product()!.taxRate"
+              (ngModelChange)="store.onTaxRateChange($event)"
+              placeholder="16"
+              class="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 font-mono"
+            />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs text-zinc-300 font-medium">Coste sin IVA ($)</label>
+            <input
+              type="number"
+              step="0.0001"
+              [ngModel]="product()!.costPrice"
+              (ngModelChange)="store.onCostPriceChange($event)"
+              class="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 font-mono"
+            />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs text-zinc-400 font-medium">Coste con IVA ($)</label>
+            <input
+              type="number"
+              step="0.0001"
+              [(ngModel)]="product()!.costPriceWithTax"
+              readonly
+              class="bg-zinc-950 border border-zinc-800/60 rounded-lg px-3 py-2 text-sm text-zinc-400 font-mono"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 pt-3 border-t border-zinc-800/60">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs text-emerald-400 font-semibold"
+              >Precio de Venta sin IVA ($)</label
+            >
+            <input
+              type="number"
+              step="0.0001"
+              [ngModel]="product()!.unitPrice"
+              (ngModelChange)="store.onUnitPriceChange($event)"
+              class="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 font-mono"
+            />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs text-emerald-400 font-semibold"
+              >Precio de Venta con IVA ($)</label
+            >
+            <input
+              type="number"
+              step="0.01"
+              [ngModel]="product()!.unitPriceWithTax"
+              (ngModelChange)="store.onUnitPriceWithTaxChange($event)"
+              class="bg-zinc-900 border border-emerald-900/40 rounded-lg px-3 py-2 text-sm text-white font-bold focus:outline-none focus:border-emerald-500 font-mono"
+            />
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- TAB 3: STOCK Y ALMACÉN -->
+    @if (store.activeModalTab() === 'stock') {
+      <div class="space-y-6">
+        <div
+          class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-zinc-900/50 rounded-xl border border-zinc-800"
+        >
+          <label class="flex items-center justify-between cursor-pointer">
+            <div>
+              <span class="text-sm font-medium text-white block">Controlar Inventario</span>
+              <span class="text-xs text-zinc-400">Descuenta existencias en ventas y traspasos</span>
+            </div>
+            <input
+              type="checkbox"
+              [(ngModel)]="product()!.trackStock"
+              class="w-4 h-4 rounded bg-zinc-800 border-zinc-700 text-emerald-600 focus:ring-emerald-500"
+            />
+          </label>
+
+          <label class="flex items-center justify-between cursor-pointer">
+            <div>
+              <span class="text-sm font-medium text-white block">Disponible en TPV / Caja</span>
+              <span class="text-xs text-zinc-400">Muestra el artículo en el punto de venta</span>
+            </div>
+            <input
+              type="checkbox"
+              [(ngModel)]="product()!.useInPOS"
+              class="w-4 h-4 rounded bg-zinc-800 border-zinc-700 text-emerald-600 focus:ring-emerald-500"
+            />
+          </label>
+        </div>
+
+        @if (product()?.trackStock) {
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-medium text-zinc-300 mb-1"
+                >Stock Mínimo (Alerta)</label
+              >
+              <input
+                type="number"
+                [(ngModel)]="product()!.minStock"
+                class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-zinc-300 mb-1"
+                >Stock Máximo Deseado</label
+              >
+              <input
+                type="number"
+                [(ngModel)]="product()!.maxStock"
+                class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+              />
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-medium text-zinc-300"
+                >Existencias por Almacén / Ubicación</label
+              >
+              <span class="text-[11px] text-zinc-500 italic"
+                >* Los saldos se actualizan mediante Compras, Ventas o Traspasos</span
+              >
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              @for (wStock of product()?.stocksByWarehouse; track wStock.warehouseId) {
+                <div
+                  class="flex items-center justify-between bg-zinc-950 p-3 rounded-xl border border-zinc-800/80"
+                >
+                  <div class="flex items-center gap-2.5">
+                    <span
+                      class="w-2.5 h-2.5 rounded-full"
+                      [class]="wStock.stock > 0 ? 'bg-emerald-500' : 'bg-rose-500'"
+                    ></span>
+                    <span class="text-xs text-zinc-200 font-medium">{{
+                      wStock.warehouseName
+                    }}</span>
+                  </div>
+                  <div
+                    class="flex items-center gap-1.5 bg-zinc-900 px-3 py-1.5 rounded-lg border border-zinc-800"
+                  >
+                    <span class="text-xs font-mono font-bold text-white">{{
+                      wStock.stock | number: '1.0-2'
+                    }}</span>
+                    <span class="text-[10px] font-semibold text-zinc-400 uppercase">{{
+                      product()?.baseUnit
+                    }}</span>
+                  </div>
+                </div>
+              } @empty {
+                <div
+                  class="col-span-2 text-center py-6 bg-zinc-950/50 rounded-xl border border-dashed border-zinc-800 text-xs text-zinc-500"
+                >
+                  No hay almacenes asociados a este producto.
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- TAB 4: PRESENTACIONES -->
+    @if (store.activeModalTab() === 'presentations') {
+      <div class="flex items-center gap-6 p-3 bg-zinc-950 rounded-xl border border-zinc-800">
+        <label class="flex items-center gap-2 cursor-pointer text-xs text-white">
+          <input
+            type="checkbox"
+            [(ngModel)]="product()!.useBatchExpiration"
+            class="w-4 h-4 rounded accent-emerald-500"
+          />
+          <span>Usar Lote / Caducidad</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer text-xs text-white">
+          <input
+            type="checkbox"
+            [(ngModel)]="product()!.useSerialNumbers"
+            class="w-4 h-4 rounded accent-emerald-500"
+          />
+          <span>Usar N.ºs de Serie</span>
+        </label>
+      </div>
+
+      <div class="flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+          <label class="text-xs font-semibold text-zinc-300"
+            >Presentaciones de Venta / Empaque</label
+          >
+          <button
+            (click)="store.addPresentation()"
+            class="text-xs text-emerald-400 hover:text-emerald-300 font-medium flex items-center gap-1 cursor-pointer"
+          >
+            + Agregar Presentación
+          </button>
+        </div>
+
+        @for (pres of product()?.presentations; track $index) {
+          <div
+            class="bg-zinc-950 p-3 rounded-lg border border-zinc-800/60 grid grid-cols-12 gap-2 items-center"
+          >
+            <div class="col-span-4 flex flex-col gap-1">
+              <input
+                type="text"
+                [(ngModel)]="pres.name"
+                placeholder="Nombre (ej. Caja, Cartera)"
+                class="bg-zinc-900 border border-zinc-800 rounded px-2 py-1 text-xs text-white"
+              />
+            </div>
+            <div class="col-span-3 flex items-center gap-1">
+              <span class="text-[10px] text-zinc-500">=</span>
+              <input
+                type="number"
+                [(ngModel)]="pres.baseConversionFactor"
+                class="bg-zinc-900 border border-zinc-800 rounded px-2 py-1 text-xs text-white w-full"
+              />
+              <span class="text-[10px] text-zinc-400 uppercase">{{ product()?.baseUnit }}</span>
+            </div>
+            <div class="col-span-4 flex items-center gap-1">
+              <span class="text-[10px] text-zinc-500">$</span>
+              <input
+                type="number"
+                [(ngModel)]="pres.priceWithTax"
+                placeholder="Precio con IVA"
+                class="bg-zinc-900 border border-zinc-800 rounded px-2 py-1 text-xs text-white w-full font-mono"
+              />
+            </div>
+            <div class="col-span-1 text-right">
+              <button
+                (click)="store.removePresentation($index)"
+                class="text-zinc-500 hover:text-rose-400 text-xs cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        } @empty {
+          <div
+            class="p-3 text-center border border-dashed border-zinc-800 rounded-lg text-xs text-zinc-600"
+          >
+            Sin presentaciones registradas.
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

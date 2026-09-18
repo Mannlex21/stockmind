@@ -1,0 +1,44 @@
+@if (store.isProductModalOpen()) {
+  <div class="fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
+    <div
+      class="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col"
+    >
+      <!-- Header -->
+      <div class="p-5 border-b border-zinc-800 flex items-center justify-between bg-zinc-950/40">
+        <div>
+          <h3 class="text-lg font-bold text-white">
+            {{ store.editingProduct()?.id ? 'Ficha de Artículo ERP' : 'Nuevo Artículo ERP' }}
+          </h3>
+          <p class="text-xs text-zinc-400">
+            Referencia: {{ store.editingProduct()?.sku || 'N/A' }}
+          </p>
+        </div>
+        <button
+          (click)="store.closeProductModal()"
+          class="text-zinc-400 hover:text-white p-1 cursor-pointer"
+        >
+          ✕
+        </button>
+      </div>
+
+      <!-- Pestañas -->
+      <app-inventory-modal-tabs />
+
+      <!-- Footer -->
+      <div class="p-4 bg-zinc-950/50 border-t border-zinc-800 flex justify-end gap-3">
+        <button
+          (click)="store.closeProductModal()"
+          class="px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer"
+        >
+          Cancelar
+        </button>
+        <button
+          (click)="store.saveProduct()"
+          class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors shadow-lg shadow-emerald-900/20 cursor-pointer"
+        >
+          Guardar Cambios
+        </button>
+      </div>
+    </div>
+  </div>
+}

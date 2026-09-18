@@ -1,0 +1,198 @@
+<div class="bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden backdrop-blur-sm">
+  <div class="overflow-x-auto">
+    <table class="w-full text-left text-sm text-zinc-400">
+      <thead class="bg-zinc-950/50 text-xs uppercase text-zinc-400 border-b border-zinc-800">
+        <tr>
+          <th class="px-6 py-4">Ref. / Código</th>
+          <th class="px-6 py-4">Descripción / Familia</th>
+          <th class="px-6 py-4">Stock Físico</th>
+          <th class="px-6 py-4">Flujo Previsto</th>
+          <th class="px-6 py-4">Coste / Precio (con IVA)</th>
+          <th class="px-6 py-4">Estado / Flags</th>
+          <th class="px-6 py-4 text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-zinc-800/50">
+        @for (product of store.filteredProducts(); track product.id) {
+          <tr class="hover:bg-zinc-800/30 transition-colors" [class.opacity-60]="!product.isActive">
+            <!-- SKU y Código de Barras -->
+            <td class="px-6 py-4">
+              <div class="font-mono text-xs text-zinc-200 font-bold">{{ product.sku }}</div>
+              @if (product.barcodes && product.barcodes.length > 0 && product.barcodes[0]) {
+                <div class="text-[10px] font-mono text-zinc-500 mt-0.5">
+                  EAN: {{ product.barcodes[0] }}
+                </div>
+              }
+              @if (product.brand) {
+                <div class="text-[10px] text-emerald-400 font-medium mt-0.5">
+                  {{ product.brand }}
+                </div>
+              }
+            </td>
+
+            <!-- Descripción y Familia -->
+            <td class="px-6 py-4">
+              <div class="font-medium text-white flex items-center gap-2">
+                <span>{{ product.name }}</span>
+                @if (!product.isActive) {
+                  <span
+                    class="px-1.5 py-0.5 text-[10px] bg-zinc-800 text-zinc-400 border border-zinc-700 rounded"
+                    >Inactivo</span
+                  >
+                }
+                @if (!product.trackStock) {
+                  <span
+                    class="px-1.5 py-0.5 text-[10px] bg-indigo-950 text-indigo-400 border border-indigo-800 rounded"
+                    >Servicio</span
+                  >
+                }
+              </div>
+              <div class="text-[11px] text-zinc-500 mt-0.5">
+                {{ product.category }}
+                @if (product.subcategory) {
+                  / {{ product.subcategory }}
+                }
+              </div>
+
+              @if (product.presentations && product.presentations.length > 0) {
+                <div class="flex flex-wrap gap-1 mt-1.5">
+                  @for (pres of product.presentations; track pres.id) {
+                    <span
+                      class="px-1.5 py-0.5 text-[10px] bg-zinc-800 text-zinc-300 rounded border border-zinc-700"
+                    >
+                      {{ pres.name }} ({{ pres.baseConversionFactor }} {{ product.baseUnit }})
+                    </span>
+                  }
+                </div>
+              }
+            </td>
+
+            <!-- Stock Físico -->
+            <td class="px-6 py-4">
+              @if (product.trackStock) {
+                <div class="font-semibold text-white">
+                  {{ product.stock | number: (product.baseUnit === 'PCS' ? '1.0-0' : '1.2-2') }}
+                  <span class="text-xs text-emerald-400 font-normal uppercase">{{
+                    product.baseUnit
+                  }}</span>
+                </div>
+                <div class="text-[10px] text-zinc-500 mt-0.5">
+                  Mín: {{ product.minStock }} | Máx: {{ product.maxStock || '-' }}
+                </div>
+              } @else {
+                <span class="text-xs text-zinc-500 italic">No aplica (Servicio)</span>
+              }
+            </td>
+
+            <!-- Flujo Previsto -->
+            <td class="px-6 py-4">
+              @if (product.trackStock) {
+                <div class="flex flex-col gap-0.5 text-[11px]">
+                  <span class="text-emerald-400" title="Pendiente Recibir"
+                    >📥 Recibir: +{{ product.pendingToReceive }}</span
+                  >
+                  <span class="text-amber-400" title="Pendiente Servir"
+                    >📤 Servir: -{{ product.pendingToServe }}</span
+                  >
+                </div>
+              } @else {
+                <span class="text-xs text-zinc-600">-</span>
+              }
+            </td>
+
+            <!-- Coste / Precio -->
+            <td class="px-6 py-4 font-mono text-xs">
+              <div class="text-zinc-400">
+                Coste: ${{ product.costPriceWithTax ?? product.costPrice | number: '1.2-4' }}
+              </div>
+              <div class="text-white font-semibold">
+                PVP: ${{ product.unitPriceWithTax ?? product.unitPrice | number: '1.2-2' }}
+              </div>
+              <div class="text-[10px] text-zinc-500">IVA: {{ product.taxRate }}%</div>
+            </td>
+
+            <!-- Estado -->
+            <td class="px-6 py-4">
+              @switch (product.status) {
+                @case ('IN_STOCK') {
+                  <span
+                    class="px-2.5 py-1 text-xs font-medium bg-emerald-950 text-emerald-400 rounded-full border border-emerald-800/50"
+                    >En Stock</span
+                  >
+                }
+                @case ('LOW_STOCK') {
+                  <span
+                    class="px-2.5 py-1 text-xs font-medium bg-amber-950 text-amber-400 rounded-full border border-amber-800/50"
+                    >Stock Bajo</span
+                  >
+                }
+                @case ('OUT_OF_STOCK') {
+                  <span
+                    class="px-2.5 py-1 text-xs font-medium bg-rose-950 text-rose-400 rounded-full border border-rose-800/50"
+                    >Agotado</span
+                  >
+                }
+              }
+            </td>
+
+            <!-- Acciones -->
+            <td class="px-6 py-4 text-center">
+              <div class="flex items-center justify-center gap-1.5">
+                @if (product.trackStock) {
+                  <button
+                    (click)="store.openReturnModal(product)"
+                    class="p-1.5 text-zinc-400 hover:text-amber-400 transition-colors cursor-pointer"
+                    title="Registrar Devolución / Merma"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M16 15v-1a4 4 0 00-4-4H4m0 0l4-4m-4 4l4 4m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                      ></path>
+                    </svg>
+                  </button>
+                }
+                <button
+                  (click)="store.openProductModal(product)"
+                  class="p-1.5 text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                  title="Editar Artículo"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    ></path>
+                  </svg>
+                </button>
+                <button
+                  (click)="store.deleteProduct(product.id)"
+                  class="p-1.5 text-zinc-400 hover:text-rose-400 transition-colors cursor-pointer"
+                  title="Eliminar"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="7" class="px-6 py-8 text-center text-zinc-500">
+              No se encontraron artículos registrados.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

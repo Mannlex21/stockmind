@@ -1,0 +1,129 @@
+@if (store.isReturnModalOpen()) {
+  <div class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
+    <div
+      class="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col"
+    >
+      <div class="p-5 border-b border-zinc-800 flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-bold text-white">Registrar Devolución / Merma</h3>
+          <p class="text-xs text-zinc-400">{{ store.selectedProductForReturn()?.name }}</p>
+        </div>
+        <button
+          (click)="store.closeReturnModal()"
+          class="text-zinc-400 hover:text-white p-1 cursor-pointer"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="p-6 flex flex-col gap-4">
+        <div class="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            (click)="returnType.set('CUSTOMER_RETURN')"
+            [class.bg-emerald-950]="returnType() === 'CUSTOMER_RETURN'"
+            [class.border-emerald-700]="returnType() === 'CUSTOMER_RETURN'"
+            [class.text-emerald-400]="returnType() === 'CUSTOMER_RETURN'"
+            class="p-3 border border-zinc-800 rounded-xl text-xs font-medium text-zinc-400 hover:bg-zinc-800/50 text-center transition-all cursor-pointer"
+          >
+            📥 Devolución de Cliente
+          </button>
+          <button
+            type="button"
+            (click)="returnType.set('SUPPLIER_RETURN')"
+            [class.bg-amber-950]="returnType() === 'SUPPLIER_RETURN'"
+            [class.border-amber-700]="returnType() === 'SUPPLIER_RETURN'"
+            [class.text-amber-400]="returnType() === 'SUPPLIER_RETURN'"
+            class="p-3 border border-zinc-800 rounded-xl text-xs font-medium text-zinc-400 hover:bg-zinc-800/50 text-center transition-all cursor-pointer"
+          >
+            📤 Devolución a Proveedor
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-medium text-zinc-300">Presentación Devuelta</label>
+            <select
+              [(ngModel)]="returnPresentationId"
+              class="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+            >
+              <option value="">
+                Unidad Base ({{ store.selectedProductForReturn()?.baseUnit }})
+              </option>
+              @for (pres of store.selectedProductForReturn()?.presentations; track pres.id) {
+                <option [value]="pres.id">
+                  {{ pres.name }} ({{ pres.baseConversionFactor }}
+                  {{ store.selectedProductForReturn()?.baseUnit }})
+                </option>
+              }
+            </select>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-medium text-zinc-300">Cantidad</label>
+            <input
+              type="number"
+              [(ngModel)]="returnQuantity"
+              min="1"
+              class="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 font-mono"
+            />
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-medium text-zinc-300">Motivo</label>
+          <select
+            [(ngModel)]="returnReason"
+            class="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+          >
+            <option value="DAMAGED">Producto Dañado / Roto</option>
+            <option value="EXPIRED">Producto Caducado / Vencido</option>
+            <option value="WRONG_ITEM">Producto Incorrecto</option>
+            <option value="CUSTOMER_REFUND">Reembolso General</option>
+          </select>
+        </div>
+
+        @if (returnType() === 'CUSTOMER_RETURN') {
+          <div class="flex items-center gap-3 p-3 bg-zinc-950 rounded-lg border border-zinc-800/80">
+            <input
+              type="checkbox"
+              id="restockCheck"
+              [(ngModel)]="restockInventory"
+              class="w-4 h-4 rounded accent-emerald-500 cursor-pointer"
+            />
+            <label for="restockCheck" class="text-xs text-zinc-300 cursor-pointer">
+              ¿Volver a sumar este producto al stock vendible? <br />
+              <span class="text-[10px] text-zinc-500"
+                >(Desmarcar si el producto es merma o defectuoso)</span
+              >
+            </label>
+          </div>
+        }
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-medium text-zinc-300">Notas u Observaciones</label>
+          <textarea
+            [(ngModel)]="returnNotes"
+            rows="2"
+            placeholder="Detalles del movimiento..."
+            class="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 placeholder:text-zinc-600 resize-none"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="p-4 bg-zinc-950/50 border-t border-zinc-800 flex justify-end gap-3">
+        <button
+          (click)="store.closeReturnModal()"
+          class="px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer"
+        >
+          Cancelar
+        </button>
+        <button
+          (click)="submit()"
+          class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors shadow-lg shadow-emerald-900/20 cursor-pointer"
+        >
+          Procesar Registro
+        </button>
+      </div>
+    </div>
+  </div>
+}
