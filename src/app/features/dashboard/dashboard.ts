@@ -1,59 +1,97 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { InventoryStats, Product } from '../../core/models/inventory.model';
+import { InventoryStats, Product, PurchaseOrder } from '../../core/models/inventory.model';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './dashboard.html',
+  styleUrls: ['./dashboard.css'],
 })
-export class Dashboard {
-  // Estado reactivo con Signals
-  stats = signal<InventoryStats>({
-    totalProducts: 1248,
-    lowStockCount: 12,
-    totalValue: 45280.5,
+export class Dashboard implements OnInit {
+  /** Métricas e indicadores clave de rendimiento (KPIs) */
+  readonly stats = signal<InventoryStats>({
+    totalProducts: 148,
+    lowStockCount: 5,
+    totalValue: 248500.5,
     pendingOrders: 3,
   });
 
-  recentProducts = signal<Product[]>([
+  /** Lista de productos con bajo stock para atención rápida */
+  readonly lowStockProducts = signal<Product[]>([
     {
-      id: '1',
-      sku: 'PROD-001',
-      name: 'Sensor Industrial X1',
-      category: 'Electrónica',
-      stock: 4,
+      id: 'prod-001',
+      sku: 'ACE-500ML',
+      name: 'Aceite de Oliva Extra Virgen 500ml',
+      category: 'Abarrotes',
+      isActive: true,
+      useInPOS: true,
+      trackStock: true,
+      baseUnit: 'ML',
+      stock: 3,
       minStock: 10,
+      pendingToReceive: 20,
+      pendingToServe: 0,
+      costPrice: 85.0,
       unitPrice: 120.0,
-      supplier: 'TechCorp',
-      lastUpdated: new Date(),
+      unitPriceWithTax: 139.2,
+      taxRate: 16,
+      supplier: 'Distribuidora del Valle',
+      lastUpdated: '2026-09-15',
       status: 'LOW_STOCK',
     },
     {
-      id: '2',
-      sku: 'PROD-002',
-      name: 'Válvula Hidráulica 3/4',
-      category: 'Mecánica',
-      stock: 45,
+      id: 'prod-002',
+      sku: 'HAR-1KG',
+      name: 'Harina de Trigo Integral 1kg',
+      category: 'Insumos',
+      isActive: true,
+      useInPOS: false,
+      trackStock: true,
+      baseUnit: 'KG',
+      stock: 1,
       minStock: 15,
-      unitPrice: 85.5,
-      supplier: 'HydraSupplies',
-      lastUpdated: new Date(),
-      status: 'IN_STOCK',
-    },
-    {
-      id: '3',
-      sku: 'PROD-003',
-      name: 'Módulo de Control PLC',
-      category: 'Automatización',
-      stock: 0,
-      minStock: 5,
-      unitPrice: 450.0,
-      supplier: 'AutomationLab',
-      lastUpdated: new Date(),
-      status: 'OUT_OF_STOCK',
+      pendingToReceive: 50,
+      pendingToServe: 5,
+      costPrice: 18.5,
+      unitPrice: 28.0,
+      unitPriceWithTax: 28.0,
+      taxRate: 0,
+      supplier: 'Molinos del Norte',
+      lastUpdated: '2026-09-16',
+      status: 'LOW_STOCK',
     },
   ]);
+
+  /** Órdenes de compra pendientes recientes */
+  readonly recentOrders = signal<PurchaseOrder[]>([
+    {
+      id: 'PO-2026-001',
+      date: '2026-09-14',
+      status: 'sent',
+      totalCost: 12400.0,
+      items: [
+        {
+          productId: 'prod-001',
+          productName: 'Aceite de Oliva Extra Virgen 500ml',
+          quantityToOrder: 20,
+          estimatedCost: 85.0,
+          supplier: 'Distribuidora del Valle',
+        },
+      ],
+    },
+    {
+      id: 'PO-2026-002',
+      date: '2026-09-16',
+      status: 'draft',
+      totalCost: 3500.0,
+      items: [],
+    },
+  ]);
+
+  ngOnInit(): void {
+    // Aquí puedes invocar el servicio para cargar los datos reales del backend
+  }
 }

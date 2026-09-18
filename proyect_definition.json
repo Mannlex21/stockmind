@@ -1,7 +1,7 @@
 {
   "projectName": "StockMind",
-  "version": "0.1.0",
-  "description": "SaaS de gestión de inventario y logística inteligente con enfoque híbrido (Manual + IA).",
+  "version": "0.3.0",
+  "description": "SaaS de gestión de inventario y logística inteligente para abarrotes y cremerías con enfoque híbrido (Manual + IA), soporte para presentaciones/conversiones multinivel (cajas, carteras, granel), control de devoluciones, mermas y consulta consolidada de existencias por almacén en modo lectura.",
   "architecture": {
     "frontend": {
       "framework": "Angular 18+ (Standalone Components, Signals)",
@@ -21,7 +21,7 @@
     "aiIntegration": {
       "sdk": "@google/genai (Gemini SDK)",
       "features": [
-        "Escaneo y extracción de datos de facturas/remisiones",
+        "Escaneo y extracción de datos de facturas/remisiones con detección de presentaciones de empaque",
         "Sugerencias automáticas de reabastecimiento"
       ]
     }
@@ -33,12 +33,15 @@
       "Rutas privadas anidadas bajo el layout (/app/dashboard, /app/inventory, etc.)",
       "Componente de Layout responsivo con Sidebar, Topbar móvil y menú interactivo",
       "Dashboard principal con KPIs y tabla de alertas de stock usando Signals",
-      "Modelos de datos e interfaces de TypeScript fuertemente tipadas",
-      "Estrategia de captura de datos híbrida (Manual + IA con trazabilidad)"
+      "Modelos de datos e interfaces de TypeScript fuertemente tipadas (Unidades Base, Presentaciones, Devoluciones, Almacenes, Lotes, Impuestos)",
+      "Estrategia de captura de datos híbrida (Manual + IA con trazabilidad)",
+      "Módulo completo de Inventario (`inventory.ts` e `inventory.html`) con CRUD manual, filtros, buscador, gestión de presentaciones/conversiones y modal para procesamiento de Devoluciones y Mermas",
+      "Refactorización del catálogo de producto para manejo de existencias en modo consulta (solo lectura por almacén) y cálculo automático del stock total consolidado"
     ],
     "pending": [
       "Módulo Scanner de Facturas (IA + Formulario de revisión y edición manual)",
-      "Tabla completa de inventario con filtros, ordenamiento y CRUD manual",
+      "Módulo de Punto de Venta (TPV / POS) con filtrado por bandera `useInPOS` y descuento automático por almacén",
+      "Módulo de Traspasos Inter-almacén y Recepción de Compras para movimientos operativos de inventario",
       "Integración de Gemini SDK en el cliente/servidor",
       "Construcción de la Web API en C# .NET y migraciones con EF Core hacia Neon DB"
     ]
@@ -47,20 +50,81 @@
     "types": {
       "ProductStatus": ["IN_STOCK", "LOW_STOCK", "OUT_OF_STOCK"],
       "OrderStatus": ["draft", "sent", "completed"],
-      "DataEntryMode": ["MANUAL", "AI_GENERATED", "AI_EDITED"]
+      "DataEntryMode": ["MANUAL", "AI_GENERATED", "AI_EDITED"],
+      "UnitOfMeasure": ["PCS", "KG", "G", "L", "ML"],
+      "ReturnType": ["CUSTOMER_RETURN", "SUPPLIER_RETURN"],
+      "ReturnReason": ["DAMAGED", "EXPIRED", "WRONG_ITEM", "CUSTOMER_REFUND"]
     },
     "interfaces": {
+      "WarehouseStock": {
+        "warehouseId": "string",
+        "warehouseName": "string",
+        "stock": "number (readonly in product modal)"
+      },
+      "ProductBatch": {
+        "id": "string",
+        "batchNumber": "string",
+        "expirationDate": "Date | string",
+        "quantity": "number",
+        "warehouseId": "string (optional)"
+      },
+      "ProductPresentation": {
+        "id": "string",
+        "name": "string",
+        "parentPresentationId": "string (optional)",
+        "baseConversionFactor": "number",
+        "price": "number",
+        "priceWithTax": "number (optional)",
+        "barcode": "string (optional)",
+        "sku": "string (optional)"
+      },
       "Product": {
         "id": "string",
         "sku": "string",
+        "barcodes": "string[] (optional)",
         "name": "string",
+        "brand": "string (optional)",
         "category": "string",
-        "stock": "number",
+        "subcategory": "string (optional)",
+        "isActive": "boolean",
+        "useInPOS": "boolean",
+        "trackStock": "boolean",
+        "baseUnit": "UnitOfMeasure",
+        "stock": "number (calculated aggregate)",
+        "pendingToReceive": "number",
+        "pendingToServe": "number",
+        "accumulatedEntries": "number (optional)",
+        "accumulatedExits": "number (optional)",
         "minStock": "number",
+        "maxStock": "number (optional)",
+        "costPrice": "number",
+        "costPriceWithTax": "number (optional)",
         "unitPrice": "number",
+        "unitPriceWithTax": "number",
+        "taxRate": "number",
+        "useBatchExpiration": "boolean (optional)",
+        "useSerialNumbers": "boolean (optional)",
+        "stocksByWarehouse": "WarehouseStock[] (optional)",
+        "batches": "ProductBatch[] (optional)",
+        "presentations": "ProductPresentation[] (optional)",
         "supplier": "string",
         "lastUpdated": "Date | string",
-        "status": "ProductStatus (optional)",
+        "entryMode": "DataEntryMode (optional)",
+        "status": "ProductStatus (optional)"
+      },
+      "ReturnTransaction": {
+        "id": "string",
+        "productId": "string",
+        "productName": "string",
+        "type": "ReturnType",
+        "reason": "ReturnReason",
+        "presentationId": "string (optional)",
+        "quantityReturned": "number",
+        "baseQuantity": "number",
+        "restockInventory": "boolean",
+        "totalAmount": "number",
+        "date": "Date | string",
+        "notes": "string (optional)",
         "entryMode": "DataEntryMode (optional)"
       },
       "PurchaseOrderItem": {
@@ -68,7 +132,8 @@
         "productName": "string",
         "quantityToOrder": "number",
         "estimatedCost": "number",
-        "supplier": "string"
+        "supplier": "string",
+        "presentationId": "string (optional)"
       },
       "PurchaseOrder": {
         "id": "string",
@@ -83,6 +148,7 @@
         "quantity": "number",
         "unitPrice": "number",
         "totalPrice": "number",
+        "detectedPresentation": "string (optional)",
         "matchedProductId": "string (optional)",
         "confidenceScore": "number (optional)",
         "isManuallyVerified": "boolean"
