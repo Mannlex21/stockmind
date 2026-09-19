@@ -1,7 +1,7 @@
 {
   "projectName": "StockMind",
-  "version": "0.5.0",
-  "description": "SaaS de gestión de inventario y logística inteligente para abarrotes y cremerías con enfoque híbrido (Manual + IA), soporte para presentaciones/conversiones multinivel (cajas, carteras, granel), control de devoluciones, mermas, administración multialmacén y consulta consolidada de existencias por almacén.",
+  "version": "0.6.0",
+  "description": "SaaS de gestión de inventario y logística inteligente para abarrotes y cremerías con enfoque híbrido (Manual + IA), soporte para presentaciones/conversiones multinivel (cajas, carteras, granel), control de devoluciones, mermas, administración multialmacén, órdenes de compra y consulta consolidada de existencias por almacén.",
   "prompt": "Toma este JSON como la fuente de verdad de la arquitectura, modelos de datos, guías de diseño y estado actual de desarrollo del proyecto. Usa esta definición para contextualizar todas tus respuestas técnicas.",
   "architecture": {
     "frontend": {
@@ -55,21 +55,23 @@
     "completed": [
       "Configuración e integración de Tailwind CSS v4 con Angular 21",
       "Rutas públicas: Landing Page, Login y Registro",
-      "Rutas privadas anidadas bajo el layout (/app/dashboard, /app/inventory, /app/warehouses, /app/scanner, etc.)",
+      "Rutas privadas anidadas bajo el layout (/app/dashboard, /app/inventory, /app/warehouses, /app/orders, /app/scanner, etc.)",
       "Componente de Layout responsivo con Sidebar, Topbar móvil y menú interactivo",
       "Dashboard principal con KPIs y tabla de alertas de stock usando Signals",
-      "Modelos de datos e interfaces de TypeScript fuertemente tipadas (Unidades Base, Presentaciones, Devoluciones, Almacenes, Lotes, Impuestos)",
+      "Modelos de datos e interfaces de TypeScript fuertemente tipadas y documentadas con JSDoc exhaustivo (`inventory.model.ts`, `orders.model.ts`, `warehouse.model.ts`)",
+      "Refactorización y desacoplamiento de modelos: `inventory.model.ts` reexporta tipos de órdenes desde `orders.model.ts` eliminando duplicidad",
       "Estrategia de captura de datos híbrida (Manual + IA con trazabilidad)",
       "Módulo completo y modularizado de Inventario (`features/inventory`) estructurado en subcomponentes (`inventory-filters`, `inventory-table`, `inventory-product-modal`, `inventory-return-modal`, `inventory-modal-tabs`)",
       "Refactorización del catálogo de producto para manejo de existencias en modo consulta por almacén y cálculo de stock total consolidado",
       "Módulo completo y modularizado de Gestión de Almacenes (`features/warehouses`) compuesto por subcomponentes (`warehouse-kpis`, `warehouse-filters`, `warehouse-table`, `warehouse-form-modal`)",
       "Implementación de arquitectura de estado reactivo para Almacenes utilizando `WarehouseStore` (`warehouse.store.ts`), `WarehouseService` (`warehouse.service.ts`) y `warehouse.model.ts` para soporte de almacén principal, estado (activo/inactivo) y habilitación para TPV/POS (`allowSales`)",
-      "Módulo completo y modularizado de Scanner de Facturas (`features/scanner`) desglosado en subcomponentes (`scanner-header`, `scanner-dropzone`, `scanner-header-form`, `scanner-items-table`, `scanner-summary-footer`) con separación amplia y diseño adaptado a Tailwind CSS v4 / Zinc Dark Mode"
+      "Módulo completo y modularizado de Scanner de Facturas (`features/scanner`) desglosado en subcomponentes (`scanner-header`, `scanner-dropzone`, `scanner-header-form`, `scanner-items-table`, `scanner-summary-footer`) con separación amplia y diseño adaptado a Tailwind CSS v4 / Zinc Dark Mode",
+      "Módulo completo de Órdenes de Compra (`features/orders`) con gestión de estado reactivo mediante `OrdersStore` (`order.store.ts`), `OrdersService` (`orders.service.ts`) y vista de tabla/KPIs con filtros por estado (`draft`, `sent`, `completed`, `cancelled`)"
     ],
     "pending": [
       "Módulo de Punto de Venta (TPV / POS) con filtrado por bandera `allowSales` / `useInPOS` y descuento automático por almacén",
-      "Módulo de Traspasos Inter-almacén y Recepción de Compras para movimientos operativos de inventario",
-      "Integración de Gemini SDK en el cliente/servidor",
+      "Módulo de Traspasos Inter-almacén y Recepción operativa de Compras hacia stock real",
+      "Integración de Gemini SDK (@google/genai) en cliente/servidor para procesamiento en vivo de facturas",
       "Construcción de la Web API en C# .NET y migraciones con EF Core hacia Neon DB"
     ]
   },
@@ -85,9 +87,9 @@
         ],
         "root": ["app.css", "app.html", "app.spec.ts", "app.ts"],
         "core": {
-          "models": ["inventory.model.ts", "warehouse.model.ts"],
-          "services": ["inventory-store.service.ts", "warehouse.service.ts"],
-          "stores": ["warehouse.store.ts"]
+          "models": ["inventory.model.ts", "orders.model.ts", "warehouse.model.ts"],
+          "services": ["inventory-store.service.ts", "orders.service.ts", "warehouse.service.ts"],
+          "stores": ["order.store.ts", "warehouse.store.ts"]
         },
         "features": {
           "auth": {
@@ -255,7 +257,7 @@
   "dataModels": {
     "types": {
       "ProductStatus": ["IN_STOCK", "LOW_STOCK", "OUT_OF_STOCK"],
-      "OrderStatus": ["draft", "sent", "completed"],
+      "OrderStatus": ["draft", "sent", "completed", "cancelled"],
       "DataEntryMode": ["MANUAL", "AI_GENERATED", "AI_EDITED"],
       "UnitOfMeasure": ["PCS", "KG", "G", "L", "ML"],
       "ReturnType": ["CUSTOMER_RETURN", "SUPPLIER_RETURN"],
@@ -352,14 +354,32 @@
         "quantityToOrder": "number",
         "estimatedCost": "number",
         "supplier": "string",
-        "presentationId": "string (optional)"
+        "presentationId": "string (optional)",
+        "presentationName": "string (optional)"
       },
       "PurchaseOrder": {
         "id": "string",
+        "orderNumber": "string",
         "date": "Date | string",
+        "supplier": "string",
         "items": "PurchaseOrderItem[]",
         "totalCost": "number",
-        "status": "OrderStatus"
+        "status": "OrderStatus",
+        "notes": "string (optional)",
+        "entryMode": "DataEntryMode (optional)",
+        "createdAt": "Date | string (optional)",
+        "updatedAt": "Date | string (optional)"
+      },
+      "OrderFilter": {
+        "search": "string",
+        "status": "OrderStatus | 'ALL'"
+      },
+      "OrderStats": {
+        "totalOrders": "number",
+        "draftCount": "number",
+        "sentCount": "number",
+        "completedCount": "number",
+        "totalEstimatedSpend": "number"
       },
       "InvoiceItemScan": {
         "description": "string",

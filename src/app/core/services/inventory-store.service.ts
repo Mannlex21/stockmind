@@ -1,15 +1,14 @@
 import { Injectable, computed, signal } from '@angular/core';
 import {
-  DataEntryMode,
   InventoryStats,
   Product,
   ProductStatus,
-  PurchaseOrder,
   ReturnTransaction,
   ReturnType,
   ReturnReason,
   ProductPresentation,
 } from '../models/inventory.model';
+import { PurchaseOrder } from '../models/orders.model';
 
 @Injectable({
   providedIn: 'root',

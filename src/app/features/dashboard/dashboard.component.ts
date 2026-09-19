@@ -1,7 +1,8 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { InventoryStats, Product, PurchaseOrder } from '../../core/models/inventory.model';
+import { InventoryStats, Product } from '../../core/models/inventory.model';
+import { PurchaseOrder } from '../../core/models/orders.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -72,6 +73,8 @@ export class DashboardComponent implements OnInit {
       date: '2026-09-14',
       status: 'sent',
       totalCost: 12400.0,
+      supplier: '',
+      orderNumber: '1',
       items: [
         {
           productId: 'prod-001',
@@ -87,6 +90,8 @@ export class DashboardComponent implements OnInit {
       date: '2026-09-16',
       status: 'draft',
       totalCost: 3500.0,
+      supplier: '',
+      orderNumber: '1',
       items: [],
     },
   ]);
