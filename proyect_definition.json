@@ -2,6 +2,7 @@
   "projectName": "StockMind",
   "version": "0.4.0",
   "description": "SaaS de gestión de inventario y logística inteligente para abarrotes y cremerías con enfoque híbrido (Manual + IA), soporte para presentaciones/conversiones multinivel (cajas, carteras, granel), control de devoluciones, mermas, administración multialmacén y consulta consolidada de existencias por almacén.",
+  "prompt": "Toma este JSON como la fuente de verdad de la arquitectura, modelos de datos y estado actual de desarrollo del proyecto. Usa esta definición para contextualizar todas tus respuestas técnicas.",
   "architecture": {
     "frontend": {
       "framework": "Angular 18+ (Standalone Components, Signals, SignalStore / Custom Stores)",
