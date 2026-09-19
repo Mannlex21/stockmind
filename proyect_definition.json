@@ -1,12 +1,12 @@
 {
   "projectName": "StockMind",
-  "version": "0.3.1",
-  "description": "SaaS de gestión de inventario y logística inteligente para abarrotes y cremerías con enfoque híbrido (Manual + IA), soporte para presentaciones/conversiones multinivel (cajas, carteras, granel), control de devoluciones, mermas y consulta consolidada de existencias por almacén en modo lectura.",
+  "version": "0.4.0",
+  "description": "SaaS de gestión de inventario y logística inteligente para abarrotes y cremerías con enfoque híbrido (Manual + IA), soporte para presentaciones/conversiones multinivel (cajas, carteras, granel), control de devoluciones, mermas, administración multialmacén y consulta consolidada de existencias por almacén.",
   "architecture": {
     "frontend": {
-      "framework": "Angular 18+ (Standalone Components, Signals)",
+      "framework": "Angular 18+ (Standalone Components, Signals, SignalStore / Custom Stores)",
       "styling": "Tailwind CSS v4",
-      "uiComponents": "PrimeNG",
+      "uiComponents": "PrimeNG + Lucide Icons",
       "deploymentTarget": "Vercel (Free Tier)"
     },
     "backend": {
@@ -30,17 +30,19 @@
     "completed": [
       "Configuración e integración de Tailwind CSS v4 con Angular 18",
       "Rutas públicas: Landing Page, Login y Registro",
-      "Rutas privadas anidadas bajo el layout (/app/dashboard, /app/inventory, etc.)",
+      "Rutas privadas anidadas bajo el layout (/app/dashboard, /app/inventory, /app/warehouses, etc.)",
       "Componente de Layout responsivo con Sidebar, Topbar móvil y menú interactivo",
       "Dashboard principal con KPIs y tabla de alertas de stock usando Signals",
       "Modelos de datos e interfaces de TypeScript fuertemente tipadas (Unidades Base, Presentaciones, Devoluciones, Almacenes, Lotes, Impuestos)",
       "Estrategia de captura de datos híbrida (Manual + IA con trazabilidad)",
-      "Módulo completo de Inventario (`inventory.ts` e `inventory.html`) con CRUD manual, filtros, buscador, gestión de presentaciones/conversiones y modal para procesamiento de Devoluciones y Mermas",
-      "Refactorización del catálogo de producto para manejo de existencias en modo consulta (solo lectura por almacén) y cálculo automático del stock total consolidado"
+      "Módulo completo y modularizado de Inventario (`features/inventory`) estructurado en subcomponentes (`inventory-filters`, `inventory-table`, `inventory-product-modal`, `inventory-return-modal`, `inventory-modal-tabs`)",
+      "Refactorización del catálogo de producto para manejo de existencias en modo consulta por almacén y cálculo de stock total consolidado",
+      "Módulo completo y modularizado de Gestión de Almacenes (`features/warehouses`) compuesto por subcomponentes (`warehouse-kpis`, `warehouse-filters`, `warehouse-table`, `warehouse-form-modal`)",
+      "Implementación de arquitectura de estado reactivo para Almacenes utilizando `WarehouseStore` (`warehouse.store.ts`), `WarehouseService` (`warehouse.service.ts`) y `warehouse.model.ts` para soporte de almacén principal, estado (activo/inactivo) y habilitación para TPV/POS (`allowSales`)"
     ],
     "pending": [
       "Módulo Scanner de Facturas (IA + Formulario de revisión y edición manual)",
-      "Módulo de Punto de Venta (TPV / POS) con filtrado por bandera `useInPOS` y descuento automático por almacén",
+      "Módulo de Punto de Venta (TPV / POS) con filtrado por bandera `allowSales` / `useInPOS` y descuento automático por almacén",
       "Módulo de Traspasos Inter-almacén y Recepción de Compras para movimientos operativos de inventario",
       "Integración de Gemini SDK en el cliente/servidor",
       "Construcción de la Web API en C# .NET y migraciones con EF Core hacia Neon DB"
@@ -53,9 +55,22 @@
       "DataEntryMode": ["MANUAL", "AI_GENERATED", "AI_EDITED"],
       "UnitOfMeasure": ["PCS", "KG", "G", "L", "ML"],
       "ReturnType": ["CUSTOMER_RETURN", "SUPPLIER_RETURN"],
-      "ReturnReason": ["DAMAGED", "EXPIRED", "WRONG_ITEM", "CUSTOMER_REFUND"]
+      "ReturnReason": ["DAMAGED", "EXPIRED", "WRONG_ITEM", "CUSTOMER_REFUND"],
+      "WarehouseStatusFilter": ["ALL", "ACTIVE", "INACTIVE"]
     },
     "interfaces": {
+      "Warehouse": {
+        "id": "string",
+        "code": "string",
+        "name": "string",
+        "location": "string (optional)",
+        "description": "string (optional)",
+        "isMain": "boolean",
+        "allowSales": "boolean",
+        "isActive": "boolean",
+        "createdAt": "Date | string (optional)",
+        "updatedAt": "Date | string (optional)"
+      },
       "WarehouseStock": {
         "warehouseId": "string",
         "warehouseName": "string",

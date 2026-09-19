@@ -1,0 +1,27 @@
+<div
+  class="bg-zinc-900/50 border border-zinc-800 p-4 rounded-xl backdrop-blur-sm shadow-sm flex flex-col sm:flex-row gap-4 justify-between items-center"
+>
+  <!-- Búsqueda -->
+  <div class="relative w-full sm:w-80">
+    <svg lucideSearch class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500"></svg>
+    <input
+      type="text"
+      [(ngModel)]="searchQuery"
+      placeholder="Buscar por código, nombre o ubicación..."
+      class="w-full pl-9 pr-4 py-2 text-sm border border-zinc-800 rounded-lg bg-zinc-950/50 text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+    />
+  </div>
+
+  <!-- Filtro por Estado -->
+  <div class="flex items-center gap-2 w-full sm:w-auto">
+    <label class="text-xs font-semibold text-zinc-400 uppercase">Estado:</label>
+    <select
+      [(ngModel)]="selectedStatus"
+      class="px-3 py-2 text-sm border border-zinc-800 rounded-lg bg-zinc-950 text-zinc-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+    >
+      <option value="ALL">Todos</option>
+      <option value="ACTIVE">Activos</option>
+      <option value="INACTIVE">Inactivos</option>
+    </select>
+  </div>
+</div>
