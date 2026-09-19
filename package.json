@@ -1,12 +1,6 @@
 {
   "name": "stockmind",
   "version": "0.0.0",
-  "allowScripts": {
-    "esbuild": true,
-    "@parcel/watcher": true,
-    "lmdb": true,
-    "msgpackr-extract": true
-  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
