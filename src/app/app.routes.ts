@@ -1,35 +1,42 @@
 import { Routes } from '@angular/router';
+import { LoginComponent } from './features/auth/login/login.component';
 
 export const routes: Routes = [
   // Ruta Pública: Landing Page
   {
     path: '',
-    loadComponent: () => import('./features/landing/landing').then((m) => m.Landing),
+    loadComponent: () =>
+      import('./features/landing/landing.component').then((m) => m.LandingComponent),
   },
 
   // Rutas de Autenticación
   {
     path: 'login',
-    loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
+    loadComponent: () =>
+      import('./features/auth/login/login.component').then((m) => m.LoginComponent),
   },
   {
     path: 'register',
-    loadComponent: () => import('./features/auth/register/register').then((m) => m.Register),
+    loadComponent: () =>
+      import('./features/auth/register/register.component').then((m) => m.RegisterComponent),
   },
 
   // Ruta Privada: App Principal con Layout / Sidebar
   {
     path: 'app',
-    loadComponent: () => import('./shared/components/layout/layout').then((m) => m.Layout),
+    loadComponent: () =>
+      import('./shared/components/layout/layout.component').then((m) => m.LayoutComponent),
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       {
         path: 'dashboard',
-        loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.Dashboard),
+        loadComponent: () =>
+          import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
       },
       {
         path: 'inventory',
-        loadComponent: () => import('./features/inventory/inventory').then((m) => m.Inventory),
+        loadComponent: () =>
+          import('./features/inventory/inventory.component').then((m) => m.InventoryComponent),
       },
       {
         path: 'warehouses',
@@ -38,15 +45,18 @@ export const routes: Routes = [
       },
       {
         path: 'scanner',
-        loadComponent: () => import('./features/scanner/scanner').then((m) => m.Scanner),
+        loadComponent: () =>
+          import('./features/scanner/scanner.component').then((m) => m.ScannerComponent),
       },
       {
         path: 'orders',
-        loadComponent: () => import('./features/orders/orders').then((m) => m.Orders),
+        loadComponent: () =>
+          import('./features/orders/orders.component').then((m) => m.OrdersComponent),
       },
       {
         path: 'settings',
-        loadComponent: () => import('./features/settings/settings').then((m) => m.Settings),
+        loadComponent: () =>
+          import('./features/settings/settings.component').then((m) => m.SettingsComponent),
       },
     ],
   },

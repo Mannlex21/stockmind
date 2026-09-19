@@ -1,0 +1,96 @@
+<div class="min-h-screen bg-[#0f0f11] text-zinc-100 flex flex-col md:flex-row">
+  <!-- TOPBAR MÓVIL -->
+  <header
+    class="md:hidden flex items-center justify-between p-4 bg-zinc-900/80 border-b border-zinc-800 backdrop-blur-md sticky top-0 z-50"
+  >
+    <div class="flex items-center gap-2">
+      <div
+        class="w-8 h-8 bg-emerald-900 text-emerald-400 font-bold flex items-center justify-center rounded-lg"
+      >
+        S
+      </div>
+      <span class="text-lg font-bold text-white tracking-tight">StockMind</span>
+    </div>
+    <button (click)="toggleMobileMenu()" class="text-zinc-400 hover:text-white p-2">
+      <svg lucideMenu class="w-6 h-6"></svg>
+    </button>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside
+    class="fixed md:static inset-y-0 left-0 z-40 w-64 bg-zinc-900/60 border-r border-zinc-800/80 p-5 flex flex-col justify-between transition-transform duration-200 backdrop-blur-md shrink-0"
+    [class.translate-x-0]="isMobileMenuOpen()"
+    [class.-translate-x-full]="!isMobileMenuOpen()"
+    [class.md:translate-x-0]="true"
+  >
+    <div class="flex flex-col gap-8">
+      <!-- Logo -->
+      <div class="hidden md:flex items-center gap-3 px-2">
+        <div
+          class="w-9 h-9 bg-emerald-950 border border-emerald-800/50 text-emerald-400 font-bold text-xl flex items-center justify-center rounded-lg shadow-lg shadow-emerald-950/50"
+        >
+          S
+        </div>
+        <div>
+          <span class="text-lg font-bold text-white tracking-tight block leading-none"
+            >StockMind</span
+          >
+          <span class="text-[10px] text-emerald-500 font-medium uppercase tracking-wider"
+            >Logística IA</span
+          >
+        </div>
+      </div>
+
+      <!-- Navegación -->
+      <nav class="flex flex-col gap-1.5">
+        @for (item of navItems; track item.route) {
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="bg-emerald-950/60 text-emerald-400 border-emerald-800/50 font-semibold"
+            [routerLinkActiveOptions]="{ exact: false }"
+            (click)="closeMobileMenu()"
+            class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all border border-transparent cursor-pointer"
+          >
+            <svg [lucideIcon]="item.icon" class="w-5 h-5 shrink-0"></svg>
+            <span>{{ item.label }}</span>
+          </a>
+        }
+      </nav>
+    </div>
+
+    <!-- Perfil del usuario / Salir -->
+    <div class="pt-4 border-t border-zinc-800 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center font-bold text-xs text-white"
+        >
+          M
+        </div>
+        <div class="flex flex-col">
+          <span class="text-xs font-medium text-white">Mi Empresa</span>
+          <span class="text-[10px] text-zinc-500">Plan Pro</span>
+        </div>
+      </div>
+      <a
+        routerLink="/"
+        class="text-zinc-500 hover:text-rose-400 p-1.5 transition-colors"
+        title="Cerrar sesión"
+      >
+        <svg logoutIcon class="w-4 h-4"></svg>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Overlay Móvil -->
+  @if (isMobileMenuOpen()) {
+    <div
+      (click)="closeMobileMenu()"
+      class="fixed inset-0 bg-black/60 z-30 md:hidden backdrop-blur-xs"
+    ></div>
+  }
+
+  <!-- ÁREA DE CONTENIDO PRINCIPAL -->
+  <main class="flex-1 overflow-y-auto p-6 md:p-8">
+    <router-outlet></router-outlet>
+  </main>
+</div>
