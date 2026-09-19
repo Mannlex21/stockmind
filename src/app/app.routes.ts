@@ -1,24 +1,22 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './features/auth/login/login.component';
+import { LoginComponent } from './features/auth/login/login';
 
 export const routes: Routes = [
   // Ruta Pública: Landing Page
   {
     path: '',
-    loadComponent: () =>
-      import('./features/landing/landing.component').then((m) => m.LandingComponent),
+    loadComponent: () => import('./features/landing/landing').then((m) => m.LandingComponent),
   },
 
   // Rutas de Autenticación
   {
     path: 'login',
-    loadComponent: () =>
-      import('./features/auth/login/login.component').then((m) => m.LoginComponent),
+    loadComponent: () => import('./features/auth/login/login').then((m) => m.LoginComponent),
   },
   {
     path: 'register',
     loadComponent: () =>
-      import('./features/auth/register/register.component').then((m) => m.RegisterComponent),
+      import('./features/auth/register/register').then((m) => m.RegisterComponent),
   },
 
   // Ruta Privada: App Principal con Layout / Sidebar
@@ -31,17 +29,17 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         loadComponent: () =>
-          import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+          import('./features/dashboard/dashboard').then((m) => m.DashboardComponent),
       },
       {
         path: 'inventory',
         loadComponent: () =>
-          import('./features/inventory/inventory.component').then((m) => m.InventoryComponent),
+          import('./features/inventory/inventory').then((m) => m.InventoryComponent),
       },
       {
         path: 'warehouses',
         loadComponent: () =>
-          import('./features/warehouses/warehouses.component').then((m) => m.WarehousesComponent),
+          import('./features/warehouses/warehouses').then((m) => m.WarehousesComponent),
       },
       {
         path: 'scanner',
@@ -50,13 +48,12 @@ export const routes: Routes = [
       },
       {
         path: 'orders',
-        loadComponent: () =>
-          import('./features/orders/orders.component').then((m) => m.OrdersComponent),
+        loadComponent: () => import('./features/orders/orders').then((m) => m.OrdersComponent),
       },
       {
         path: 'settings',
         loadComponent: () =>
-          import('./features/settings/settings.component').then((m) => m.SettingsComponent),
+          import('./features/settings/settings').then((m) => m.SettingsComponent),
       },
     ],
   },

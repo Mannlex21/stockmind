@@ -48,12 +48,14 @@
     "angularConventions": {
       "controlFlow": "Sintaxis nativa moderna (@if, @for, @empty)",
       "reactiveState": "Angular Signals (input(), output(), signal(), computed())",
+      "namingConvention": "Nombres de archivo simplificados sin sufijo .component (*.ts, *.html, *.css, *.spec.ts)",
       "componentStructure": "Componentes modulares con separación estricta de archivos (.ts, .html, .css, .spec.ts)"
     }
   },
   "progress": {
     "completed": [
       "Configuración e integración de Tailwind CSS v4 con Angular 21",
+      "Estandarización de nombres de archivos removiendo el sufijo .component según nuevas convenciones del proyecto",
       "Rutas públicas: Landing Page, Login y Registro",
       "Rutas privadas anidadas bajo el layout (/app/dashboard, /app/inventory, /app/warehouses, /app/orders, /app/scanner, etc.)",
       "Componente de Layout responsivo con Sidebar, Topbar móvil y menú interactivo",
@@ -93,77 +95,75 @@
         },
         "features": {
           "auth": {
-            "login": [
-              "login.component.css",
-              "login.component.html",
-              "login.component.spec.ts",
-              "login.component.ts"
-            ],
-            "register": [
-              "register.component.css",
-              "register.component.html",
-              "register.component.spec.ts",
-              "register.component.ts"
-            ]
+            "login": ["login.css", "login.html", "login.spec.ts", "login.ts"],
+            "register": ["register.css", "register.html", "register.spec.ts", "register.ts"]
           },
-          "dashboard": [
-            "dashboard.component.css",
-            "dashboard.component.html",
-            "dashboard.component.spec.ts",
-            "dashboard.component.ts"
-          ],
+          "dashboard": ["dashboard.css", "dashboard.html", "dashboard.spec.ts", "dashboard.ts"],
           "inventory": {
-            "root": [
-              "inventory.component.css",
-              "inventory.component.html",
-              "inventory.component.spec.ts",
-              "inventory.component.ts"
-            ],
+            "root": ["inventory.css", "inventory.html", "inventory.spec.ts", "inventory.ts"],
             "components": {
               "inventory-filters": [
-                "inventory-filters.component.css",
-                "inventory-filters.component.html",
-                "inventory-filters.component.spec.ts",
-                "inventory-filters.component.ts"
+                "inventory-filters.css",
+                "inventory-filters.html",
+                "inventory-filters.spec.ts",
+                "inventory-filters.ts"
               ],
               "inventory-modal-tabs": [
-                "inventory-modal-tabs.component.css",
-                "inventory-modal-tabs.component.html",
-                "inventory-modal-tabs.component.spec.ts",
-                "inventory-modal-tabs.component.ts"
+                "inventory-modal-tabs.css",
+                "inventory-modal-tabs.html",
+                "inventory-modal-tabs.spec.ts",
+                "inventory-modal-tabs.ts"
               ],
               "inventory-product-modal": [
-                "inventory-product-modal.component.css",
-                "inventory-product-modal.component.html",
-                "inventory-product-modal.component.spec.ts",
-                "inventory-product-modal.component.ts"
+                "inventory-product-modal.css",
+                "inventory-product-modal.html",
+                "inventory-product-modal.spec.ts",
+                "inventory-product-modal.ts"
               ],
               "inventory-return-modal": [
-                "inventory-return-modal.component.css",
-                "inventory-return-modal.component.html",
-                "inventory-return-modal.component.spec.ts",
-                "inventory-return-modal.component.ts"
+                "inventory-return-modal.css",
+                "inventory-return-modal.html",
+                "inventory-return-modal.spec.ts",
+                "inventory-return-modal.ts"
               ],
               "inventory-table": [
-                "inventory-table.component.css",
-                "inventory-table.component.html",
-                "inventory-table.component.spec.ts",
-                "inventory-table.component.ts"
+                "inventory-table.css",
+                "inventory-table.html",
+                "inventory-table.spec.ts",
+                "inventory-table.ts"
               ]
             }
           },
-          "landing": [
-            "landing.component.css",
-            "landing.component.html",
-            "landing.component.spec.ts",
-            "landing.component.ts"
-          ],
-          "orders": [
-            "orders.component.css",
-            "orders.component.html",
-            "orders.component.spec.ts",
-            "orders.component.ts"
-          ],
+          "landing": ["landing.css", "landing.html", "landing.spec.ts", "landing.ts"],
+          "orders": {
+            "root": ["orders.css", "orders.html", "orders.spec.ts", "orders.ts"],
+            "components": {
+              "order-filters": [
+                "order-filters.css",
+                "order-filters.html",
+                "order-filters.spec.ts",
+                "order-filters.ts"
+              ],
+              "order-form-modal": [
+                "order-form-modal.css",
+                "order-form-modal.html",
+                "order-form-modal.spec.ts",
+                "order-form-modal.ts"
+              ],
+              "order-kpis": [
+                "order-kpis.css",
+                "order-kpis.html",
+                "order-kpis.spec.ts",
+                "order-kpis.ts"
+              ],
+              "order-table": [
+                "order-table.css",
+                "order-table.html",
+                "order-table.spec.ts",
+                "order-table.ts"
+              ]
+            }
+          },
           "scanner": {
             "root": [
               "invoice-scanner.css",
@@ -204,51 +204,32 @@
               ]
             }
           },
-          "settings": [
-            "settings.component.css",
-            "settings.component.html",
-            "settings.component.spec.ts",
-            "settings.component.ts"
-          ],
+          "settings": ["settings.css", "settings.html", "settings.spec.ts", "settings.ts"],
           "warehouses": {
-            "root": [
-              "warehouses.component.css",
-              "warehouses.component.html",
-              "warehouses.component.spec.ts",
-              "warehouses.component.ts"
-            ],
+            "root": ["warehouses.css", "warehouses.html", "warehouses.spec.ts", "warehouses.ts"],
             "components": {
               "warehouse-filters": [
-                "warehouse-filters.component.css",
-                "warehouse-filters.component.html",
-                "warehouse-filters.component.ts"
+                "warehouse-filters.css",
+                "warehouse-filters.html",
+                "warehouse-filters.ts"
               ],
               "warehouse-form-modal": [
-                "warehouse-form-modal.component.css",
-                "warehouse-form-modal.component.html",
-                "warehouse-form-modal.component.ts"
+                "warehouse-form-modal.css",
+                "warehouse-form-modal.html",
+                "warehouse-form-modal.ts"
               ],
-              "warehouse-kpis": [
-                "warehouse-kpis.component.css",
-                "warehouse-kpis.component.html",
-                "warehouse-kpis.component.ts"
-              ],
+              "warehouse-kpis": ["warehouse-kpis.css", "warehouse-kpis.html", "warehouse-kpis.ts"],
               "warehouse-table": [
-                "warehouse-table.component.css",
-                "warehouse-table.component.html",
-                "warehouse-table.component.ts"
+                "warehouse-table.css",
+                "warehouse-table.html",
+                "warehouse-table.ts"
               ]
             }
           }
         },
         "shared": {
           "components": {
-            "layout": [
-              "layout.component.css",
-              "layout.component.html",
-              "layout.component.spec.ts",
-              "layout.component.ts"
-            ]
+            "layout": ["layout.css", "layout.html", "layout.spec.ts", "layout.ts"]
           }
         }
       }

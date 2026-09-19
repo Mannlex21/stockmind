@@ -1,0 +1,39 @@
+<!-- orders.component.html -->
+<div class="p-6 space-y-6 bg-zinc-950 min-h-screen">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-white">Órdenes de Compra</h1>
+      <p class="text-sm text-zinc-400">
+        Gestiona tus pedidos a proveedores y monitorea montos de reabastecimiento.
+      </p>
+    </div>
+    <button
+      (click)="openCreateModal()"
+      class="px-4 py-2 text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl transition-colors shadow-lg shadow-emerald-950/20"
+    >
+      + Nueva Órden
+    </button>
+  </div>
+
+  <!-- KPIs -->
+  <app-order-kpis [stats]="store.stats()" />
+
+  <!-- Filtros -->
+  <app-order-filters [filter]="store.filter()" (filterChange)="handleFilterChange($event)" />
+
+  <!-- Tabla -->
+  <app-order-table
+    [orders]="store.filteredOrders()"
+    (editOrder)="openEditModal($event)"
+    (deleteOrder)="handleDeleteOrder($event)"
+  />
+
+  <!-- Modal -->
+  <app-order-form-modal
+    [isOpen]="isModalOpen()"
+    [orderToEdit]="selectedOrder()"
+    (closeModal)="isModalOpen.set(false)"
+    (saveOrder)="handleSaveOrder($event)"
+  />
+</div>

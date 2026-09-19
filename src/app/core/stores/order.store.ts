@@ -1,3 +1,4 @@
+// src/app/core/stores/order.store.ts
 import { Injectable, computed, signal, inject } from '@angular/core';
 import { PurchaseOrder, OrderFilter, OrderStatus, OrderStats } from '../models/orders.model';
 import { OrdersService } from '../services/orders.service';
@@ -55,12 +56,38 @@ export class OrdersStore {
     });
   }
 
+  setFilter(newFilter: OrderFilter): void {
+    this.filter.set(newFilter);
+  }
+
   setSearchFilter(search: string): void {
     this.filter.update((f) => ({ ...f, search }));
   }
 
   setStatusFilter(status: OrderStatus | 'ALL'): void {
     this.filter.update((f) => ({ ...f, status }));
+  }
+
+  createOrder(orderData: Partial<PurchaseOrder>): void {
+    this.loading.set(true);
+    this.ordersService.createOrder(orderData).subscribe({
+      next: (createdOrder) => {
+        this.orders.update((list) => [createdOrder, ...list]);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false),
+    });
+  }
+
+  updateOrder(id: string, updatedData: Partial<PurchaseOrder>): void {
+    this.loading.set(true);
+    this.ordersService.updateOrder(id, updatedData).subscribe({
+      next: (updated) => {
+        this.orders.update((list) => list.map((o) => (o.id === id ? { ...o, ...updated } : o)));
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false),
+    });
   }
 
   updateStatus(id: string, newStatus: OrderStatus): void {
@@ -70,6 +97,19 @@ export class OrdersStore {
           list.map((o) => (o.id === id ? { ...o, status: newStatus } : o)),
         );
       }
+    });
+  }
+
+  deleteOrder(id: string): void {
+    this.loading.set(true);
+    this.ordersService.deleteOrder(id).subscribe({
+      next: (success) => {
+        if (success) {
+          this.orders.update((list) => list.filter((o) => o.id !== id));
+        }
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false),
     });
   }
 }

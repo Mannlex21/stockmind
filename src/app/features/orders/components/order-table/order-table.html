@@ -1,0 +1,59 @@
+<!-- order-table.component.html -->
+<div class="overflow-x-auto rounded-xl border border-zinc-800 bg-zinc-900/50 backdrop-blur-md">
+  <table class="w-full text-left text-sm text-zinc-200">
+    <thead
+      class="bg-zinc-950/80 text-xs font-semibold uppercase tracking-wider text-zinc-400 border-b border-zinc-800"
+    >
+      <tr>
+        <th class="p-4">Folio</th>
+        <th class="p-4">Proveedor</th>
+        <th class="p-4">Partidas</th>
+        <th class="p-4">Total</th>
+        <th class="p-4">Estado</th>
+        <th class="p-4 text-right">Acciones</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-zinc-800/60">
+      @for (order of orders(); track order.id) {
+        <tr class="hover:bg-zinc-800/30 transition-colors">
+          <td class="p-4 font-mono font-bold text-white">{{ order.orderNumber }}</td>
+          <td class="p-4">{{ order.supplier }}</td>
+          <td class="p-4 text-zinc-400">{{ order.items.length }} ítem(s)</td>
+          <td class="p-4 font-semibold text-emerald-400">
+            ${{ order.totalCost | number: '1.2-2' }}
+          </td>
+          <td class="p-4">
+            <span
+              [class]="
+                'px-2.5 py-1 rounded-full text-xs font-medium border ' +
+                getStatusClass(order.status)
+              "
+            >
+              {{ order.status | uppercase }}
+            </span>
+          </td>
+          <td class="p-4 text-right space-x-2">
+            <button
+              (click)="editOrder.emit(order)"
+              class="text-xs px-2.5 py-1 bg-zinc-800 hover:bg-zinc-700 text-white rounded"
+            >
+              Editar
+            </button>
+            <button
+              (click)="deleteOrder.emit(order.id)"
+              class="text-xs px-2.5 py-1 bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 border border-rose-900/50 rounded"
+            >
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="6" class="p-8 text-center text-zinc-500">
+            No se encontraron órdenes de compra registradas.
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

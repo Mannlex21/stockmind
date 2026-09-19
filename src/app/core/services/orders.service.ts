@@ -1,6 +1,7 @@
+// src/app/core/services/orders.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { OrderStatus, PurchaseOrder } from '../models/orders.model';
 
 @Injectable({
@@ -70,18 +71,41 @@ export class OrdersService {
       status: order.status || 'draft',
       totalCost: order.totalCost || 0,
       items: order.items || [],
+      notes: order.notes,
       entryMode: order.entryMode || 'MANUAL',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
     this.mockOrders.unshift(newOrder);
     return of(newOrder);
+  }
+
+  updateOrder(id: string, updatedData: Partial<PurchaseOrder>): Observable<PurchaseOrder> {
+    const index = this.mockOrders.findIndex((o) => o.id === id);
+    if (index !== -1) {
+      this.mockOrders[index] = {
+        ...this.mockOrders[index],
+        ...updatedData,
+        updatedAt: new Date().toISOString(),
+      };
+      return of(this.mockOrders[index]);
+    }
+    return throwError(() => new Error(`Orden con id ${id} no encontrada`));
   }
 
   updateOrderStatus(id: string, status: OrderStatus): Observable<boolean> {
     const order = this.mockOrders.find((o) => o.id === id);
     if (order) {
       order.status = status;
+      order.updatedAt = new Date().toISOString();
       return of(true);
     }
     return of(false);
+  }
+
+  deleteOrder(id: string): Observable<boolean> {
+    const initialLength = this.mockOrders.length;
+    this.mockOrders = this.mockOrders.filter((o) => o.id !== id);
+    return of(this.mockOrders.length < initialLength);
   }
 }
