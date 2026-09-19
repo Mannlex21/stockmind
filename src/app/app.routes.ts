@@ -46,7 +46,7 @@ export const routes: Routes = [
       {
         path: 'scanner',
         loadComponent: () =>
-          import('./features/scanner/scanner.component').then((m) => m.ScannerComponent),
+          import('./features/scanner/invoice-scanner').then((m) => m.InvoiceScanner),
       },
       {
         path: 'orders',

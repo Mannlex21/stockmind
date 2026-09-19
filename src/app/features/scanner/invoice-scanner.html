@@ -1,0 +1,39 @@
+<div class="p-8 max-w-[1600px] mx-auto space-y-8 font-sans">
+  <app-scanner-header [entryMode]="entryMode()" />
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div class="lg:col-span-4">
+      <app-scanner-dropzone
+        [isScanning]="isScanning()"
+        [previewUrl]="previewUrl()"
+        (fileSelected)="onFileSelected($event)"
+        (removeFile)="previewUrl.set(null)"
+      />
+    </div>
+
+    <div class="lg:col-span-8 space-y-8">
+      <app-scanner-header-form
+        [invoiceNumber]="invoiceData().invoiceNumber"
+        [supplierName]="invoiceData().supplierName"
+        [issueDate]="invoiceData().issueDate"
+        (invoiceNumberChange)="updateHeader('invoiceNumber', $event)"
+        (supplierNameChange)="updateHeader('supplierName', $event)"
+        (issueDateChange)="updateHeader('issueDate', $event)"
+      />
+
+      <app-scanner-items-table
+        [items]="invoiceData().items"
+        (addItem)="addItemManually()"
+        (removeItem)="removeItem($event)"
+        (verifyItem)="verifyItem($event)"
+        (itemUpdated)="onItemUpdated($event)"
+      />
+
+      <app-scanner-summary-footer
+        [itemCount]="invoiceData().items.length"
+        [totalAmount]="calculatedTotal()"
+        (confirmSave)="saveInvoice()"
+      />
+    </div>
+  </div>
+</div>

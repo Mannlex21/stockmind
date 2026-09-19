@@ -1,0 +1,24 @@
+<div
+  class="p-6 bg-zinc-900/50 border border-zinc-800 rounded-xl backdrop-blur-sm flex flex-col sm:flex-row justify-between items-center gap-6"
+>
+  <div class="text-xs text-zinc-400">
+    Total de partidas: <strong class="text-white font-mono text-sm ml-1">{{ itemCount() }}</strong>
+  </div>
+
+  <div class="flex items-center gap-8">
+    <div class="text-right space-y-0.5">
+      <span class="block text-[11px] text-zinc-500 uppercase tracking-wider">Total Factura</span>
+      <span class="text-xl font-bold font-mono text-white">{{
+        totalAmount() | currency: 'MXN' : 'symbol' : '1.2-2'
+      }}</span>
+    </div>
+
+    <button
+      (click)="confirmSave.emit()"
+      [disabled]="itemCount() === 0"
+      class="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:hover:bg-emerald-600 text-white font-medium text-sm px-6 py-3 rounded-lg transition-colors shadow-lg shadow-emerald-900/20 cursor-pointer"
+    >
+      Confirmar y Guardar Inventario
+    </button>
+  </div>
+</div>

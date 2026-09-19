@@ -1,0 +1,43 @@
+<div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6 backdrop-blur-sm space-y-5">
+  <h2 class="font-semibold text-white text-base tracking-wide">Datos del Comprobante</h2>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+    <div class="space-y-2">
+      <label class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider"
+        >Folio / N° Factura</label
+      >
+      <input
+        type="text"
+        [ngModel]="invoiceNumber()"
+        (ngModelChange)="invoiceNumberChange.emit($event)"
+        placeholder="Ej. FAC-1234"
+        class="w-full text-sm font-mono bg-zinc-950 border-zinc-800 text-zinc-200 rounded-lg py-2.5 px-3.5 border focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors outline-none shadow-inner"
+      />
+    </div>
+
+    <div class="space-y-2">
+      <label class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider"
+        >Proveedor</label
+      >
+      <input
+        type="text"
+        [ngModel]="supplierName()"
+        (ngModelChange)="supplierNameChange.emit($event)"
+        placeholder="Nombre del proveedor"
+        class="w-full text-sm bg-zinc-950 border-zinc-800 text-zinc-200 rounded-lg py-2.5 px-3.5 border focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors outline-none shadow-inner"
+      />
+    </div>
+
+    <div class="space-y-2">
+      <label class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider"
+        >Fecha Emisión</label
+      >
+      <input
+        type="date"
+        [ngModel]="issueDate()"
+        (ngModelChange)="issueDateChange.emit($event)"
+        class="w-full text-sm bg-zinc-950 border-zinc-800 text-zinc-200 rounded-lg py-2.5 px-3.5 border focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors outline-none [color-scheme:dark] shadow-inner"
+      />
+    </div>
+  </div>
+</div>

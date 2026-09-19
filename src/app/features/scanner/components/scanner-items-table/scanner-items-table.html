@@ -1,0 +1,141 @@
+<div class="bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden backdrop-blur-sm mb-5">
+  <div class="p-5 border-b border-zinc-800 flex justify-between items-center bg-zinc-950/50">
+    <h2 class="font-semibold text-white text-base tracking-wide">
+      Partidas Detectadas / Ingresadas
+    </h2>
+
+    <button
+      (click)="addItem.emit()"
+      class="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 text-xs px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer shadow-sm"
+    >
+      + Agregar Línea Manual
+    </button>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-left text-xs text-zinc-400">
+      <thead class="bg-zinc-950/50 text-xs uppercase text-zinc-400 border-b border-zinc-800">
+        <tr>
+          <th class="px-5 py-4">Descripción</th>
+          <th class="px-4 py-4 w-24">Cant.</th>
+          <th class="px-4 py-4 w-32">P. Unitario</th>
+          <th class="px-5 py-4 w-32 text-right">Total</th>
+          <th class="px-4 py-4 w-32">Presentación</th>
+          <th class="px-4 py-4 text-center w-28">Confianza</th>
+          <th class="px-4 py-4 text-center w-24">Acciones</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-zinc-800/50">
+        @for (item of items(); track $index) {
+          <tr
+            class="hover:bg-zinc-800/30 transition-colors"
+            [class.bg-amber-950\/20]="
+              !item.isManuallyVerified && (item.confidenceScore || 0) < 0.85
+            "
+          >
+            <!-- Descripción -->
+            <td class="p-3">
+              <input
+                type="text"
+                [value]="item.description"
+                (input)="updateField($index, 'description', $any($event.target).value)"
+                class="w-full p-2 text-xs bg-zinc-950 border border-zinc-800 rounded-md text-zinc-200 focus:border-emerald-500 focus:outline-none transition-colors"
+                placeholder="Descripción..."
+              />
+            </td>
+
+            <!-- Cantidad -->
+            <td class="p-3">
+              <input
+                type="number"
+                [value]="item.quantity"
+                (input)="updateField($index, 'quantity', +$any($event.target).value)"
+                class="w-full p-2 text-xs bg-zinc-950 border border-zinc-800 rounded-md text-zinc-200 text-center font-mono focus:border-emerald-500 focus:outline-none transition-colors"
+              />
+            </td>
+
+            <!-- Precio Unitario -->
+            <td class="p-3">
+              <input
+                type="number"
+                [value]="item.unitPrice"
+                (input)="updateField($index, 'unitPrice', +$any($event.target).value)"
+                class="w-full p-2 text-xs bg-zinc-950 border border-zinc-800 rounded-md text-zinc-200 text-right font-mono focus:border-emerald-500 focus:outline-none transition-colors"
+              />
+            </td>
+
+            <!-- Total -->
+            <td class="px-5 py-3 font-mono font-semibold text-white text-right">
+              {{ item.totalPrice || 0 | currency: 'MXN' : 'symbol' : '1.2-2' }}
+            </td>
+
+            <!-- Presentación -->
+            <td class="p-3">
+              <input
+                type="text"
+                [value]="item.detectedPresentation || ''"
+                (input)="updateField($index, 'detectedPresentation', $any($event.target).value)"
+                class="w-full p-2 text-xs bg-zinc-950 border border-zinc-800 rounded-md text-zinc-200 focus:border-emerald-500 focus:outline-none transition-colors"
+                placeholder="Caja, Pza..."
+              />
+            </td>
+
+            <!-- Score de Confianza -->
+            <td class="p-3 text-center">
+              @if (item.confidenceScore !== undefined) {
+                <span
+                  [class.text-emerald-400]="item.confidenceScore >= 0.85"
+                  [class.bg-emerald-950]="item.confidenceScore >= 0.85"
+                  [class.border-emerald-800\/50]="item.confidenceScore >= 0.85"
+                  [class.text-amber-400]="item.confidenceScore < 0.85"
+                  [class.bg-amber-950]="item.confidenceScore < 0.85"
+                  [class.border-amber-800\/50]="item.confidenceScore < 0.85"
+                  class="px-2.5 py-1 rounded text-[10px] font-bold font-mono border inline-block"
+                >
+                  {{ item.confidenceScore * 100 | number: '1.0-0' }}%
+                </span>
+              } @else {
+                <span class="text-zinc-500 text-[10px] italic">Manual</span>
+              }
+            </td>
+
+            <!-- Acciones -->
+            <td class="p-3 text-center">
+              <div class="flex items-center justify-center gap-2">
+                @if (!item.isManuallyVerified) {
+                  <button
+                    (click)="verifyItem.emit($index)"
+                    title="Marcar como Verificado"
+                    class="p-1.5 text-zinc-400 hover:text-emerald-400 transition-colors cursor-pointer"
+                  >
+                    ✓
+                  </button>
+                }
+                <button
+                  (click)="removeItem.emit($index)"
+                  title="Eliminar Línea"
+                  class="p-1.5 text-zinc-400 hover:text-rose-400 transition-colors cursor-pointer"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="7" class="px-6 py-10 text-center text-zinc-500">
+              No hay partidas registradas. Sube una factura o haz clic en "+ Agregar Línea Manual".
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
