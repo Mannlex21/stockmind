@@ -1,14 +1,15 @@
 {
   "projectName": "StockMind",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "SaaS de gestión de inventario y logística inteligente para abarrotes y cremerías con enfoque híbrido (Manual + IA), soporte para presentaciones/conversiones multinivel (cajas, carteras, granel), control de devoluciones, mermas, administración multialmacén, órdenes de compra y consulta consolidada de existencias por almacén.",
   "prompt": "Toma este JSON como la fuente de verdad de la arquitectura, modelos de datos, guías de diseño y estado actual de desarrollo del proyecto. Usa esta definición para contextualizar todas tus respuestas técnicas.",
   "architecture": {
+    "repositoryStrategy": "Polyrepo (Repositorios separados e independientes para Frontend y Backend)",
     "frontend": {
       "framework": "Angular 21+ (Standalone Components, Signals, SignalStore / Custom Stores, Control Flow moderno @if/@for)",
       "styling": "Tailwind CSS v4",
       "uiComponents": "PrimeNG + Lucide Icons",
-      "deploymentTarget": "Vercel (Free Tier)"
+      "deploymentTarget": "Vercel (Free Tier - Producción) / Contenedor Nginx (Pruebas locales y Docker)"
     },
     "backend": {
       "framework": "C# .NET (ASP.NET Core Web API)",
@@ -16,8 +17,20 @@
       "deploymentTarget": "Render Web Services (Free Tier / Docker)"
     },
     "database": {
-      "engine": "PostgreSQL",
-      "provider": "Neon DB (Serverless / Pooled Connection)"
+      "engine": "PostgreSQL 16",
+      "provider": "Neon DB (Serverless / Pooled Connection en Producción) / Contenedor Docker postgres:16-alpine (Desarrollo local)"
+    },
+    "docker": {
+      "frontend": {
+        "buildStrategy": "Multi-stage build (Etapa 1: Node 22 Alpine para compilación prod / Etapa 2: Nginx Alpine para servir archivos estáticos)",
+        "spaRouting": "Configuración de nginx.conf con regla 'try_files $uri$uri/ /index.html' para evitar errores 404 al recargar rutas de Angular",
+        "exposedPort": 80
+      },
+      "backend": {
+        "buildStrategy": "Multi-stage build (Etapa 1: .NET 9 SDK para dotnet restore y publish / Etapa 2: .NET 9 ASP.NET Runtime)",
+        "exposedPort": 8080
+      },
+      "orchestration": "Docker Compose local en repositorio Backend para orquestar la Web API C# .NET y PostgreSQL"
     },
     "aiIntegration": {
       "sdk": "@google/genai (Gemini SDK)",
@@ -68,168 +81,185 @@
       "Módulo completo y modularizado de Gestión de Almacenes (`features/warehouses`) compuesto por subcomponentes (`warehouse-kpis`, `warehouse-filters`, `warehouse-table`, `warehouse-form-modal`)",
       "Implementación de arquitectura de estado reactivo para Almacenes utilizando `WarehouseStore` (`warehouse.store.ts`), `WarehouseService` (`warehouse.service.ts`) y `warehouse.model.ts` para soporte de almacén principal, estado (activo/inactivo) y habilitación para TPV/POS (`allowSales`)",
       "Módulo completo y modularizado de Scanner de Facturas (`features/scanner`) desglosado en subcomponentes (`scanner-header`, `scanner-dropzone`, `scanner-header-form`, `scanner-items-table`, `scanner-summary-footer`) con separación amplia y diseño adaptado a Tailwind CSS v4 / Zinc Dark Mode",
-      "Módulo completo de Órdenes de Compra (`features/orders`) con gestión de estado reactivo mediante `OrdersStore` (`order.store.ts`), `OrdersService` (`orders.service.ts`) y vista de tabla/KPIs con filtros por estado (`draft`, `sent`, `completed`, `cancelled`)"
+      "Módulo completo de Órdenes de Compra (`features/orders`) con gestión de estado reactivo mediante `OrdersStore` (`order.store.ts`), `OrdersService` (`orders.service.ts`) y vista de tabla/KPIs con filtros por estado (`draft`, `sent`, `completed`, `cancelled`)",
+      "Configuración e implementación de Dockerfile multi-stage (Node 22 + Nginx Alpine), nginx.conf con reglas de fallback SPA y .dockerignore en el repositorio del Frontend",
+      "Construcción y verificación exitosa de la imagen contenerizada del Frontend ejecutándose en Nginx sobre el puerto 4200"
     ],
     "pending": [
+      "Configuración de Dockerfile y docker-compose en el repositorio del Backend (C# .NET + PostgreSQL)",
       "Módulo de Punto de Venta (TPV / POS) con filtrado por bandera `allowSales` / `useInPOS` y descuento automático por almacén",
       "Módulo de Traspasos Inter-almacén y Recepción operativa de Compras hacia stock real",
       "Integración de Gemini SDK (@google/genai) en cliente/servidor para procesamiento en vivo de facturas",
-      "Construcción de la Web API en C# .NET y migraciones con EF Core hacia Neon DB"
+      "Construcción de la Web API en C# .NET y migraciones con EF Core hacia Neon DB / PostgreSQL local"
     ]
   },
   "projectStructure": {
-    "src": {
-      "files": ["index.html", "main.server.ts", "main.ts", "server.ts", "styles.css"],
-      "app": {
-        "config": [
-          "app.config.server.ts",
-          "app.config.ts",
-          "app.routes.server.ts",
-          "app.routes.ts"
-        ],
-        "root": ["app.css", "app.html", "app.spec.ts", "app.ts"],
-        "core": {
-          "models": ["inventory.model.ts", "orders.model.ts", "warehouse.model.ts"],
-          "services": ["inventory-store.service.ts", "orders.service.ts", "warehouse.service.ts"],
-          "stores": ["order.store.ts", "warehouse.store.ts"]
-        },
-        "features": {
-          "auth": {
-            "login": ["login.css", "login.html", "login.spec.ts", "login.ts"],
-            "register": ["register.css", "register.html", "register.spec.ts", "register.ts"]
+    "frontendRepo": {
+      "rootFiles": [
+        "Dockerfile",
+        "nginx.conf",
+        ".dockerignore",
+        "package.json",
+        "angular.json",
+        "tsconfig.json"
+      ],
+      "src": {
+        "files": ["index.html", "main.server.ts", "main.ts", "server.ts", "styles.css"],
+        "app": {
+          "config": [
+            "app.config.server.ts",
+            "app.config.ts",
+            "app.routes.server.ts",
+            "app.routes.ts"
+          ],
+          "root": ["app.css", "app.html", "app.spec.ts", "app.ts"],
+          "core": {
+            "models": ["inventory.model.ts", "orders.model.ts", "warehouse.model.ts"],
+            "services": ["inventory-store.service.ts", "orders.service.ts", "warehouse.service.ts"],
+            "stores": ["order.store.ts", "warehouse.store.ts"]
           },
-          "dashboard": ["dashboard.css", "dashboard.html", "dashboard.spec.ts", "dashboard.ts"],
-          "inventory": {
-            "root": ["inventory.css", "inventory.html", "inventory.spec.ts", "inventory.ts"],
-            "components": {
-              "inventory-filters": [
-                "inventory-filters.css",
-                "inventory-filters.html",
-                "inventory-filters.spec.ts",
-                "inventory-filters.ts"
+          "features": {
+            "auth": {
+              "login": ["login.css", "login.html", "login.spec.ts", "login.ts"],
+              "register": ["register.css", "register.html", "register.spec.ts", "register.ts"]
+            },
+            "dashboard": ["dashboard.css", "dashboard.html", "dashboard.spec.ts", "dashboard.ts"],
+            "inventory": {
+              "root": ["inventory.css", "inventory.html", "inventory.spec.ts", "inventory.ts"],
+              "components": {
+                "inventory-filters": [
+                  "inventory-filters.css",
+                  "inventory-filters.html",
+                  "inventory-filters.spec.ts",
+                  "inventory-filters.ts"
+                ],
+                "inventory-modal-tabs": [
+                  "inventory-modal-tabs.css",
+                  "inventory-modal-tabs.html",
+                  "inventory-modal-tabs.spec.ts",
+                  "inventory-modal-tabs.ts"
+                ],
+                "inventory-product-modal": [
+                  "inventory-product-modal.css",
+                  "inventory-product-modal.html",
+                  "inventory-product-modal.spec.ts",
+                  "inventory-product-modal.ts"
+                ],
+                "inventory-return-modal": [
+                  "inventory-return-modal.css",
+                  "inventory-return-modal.html",
+                  "inventory-return-modal.spec.ts",
+                  "inventory-return-modal.ts"
+                ],
+                "inventory-table": [
+                  "inventory-table.css",
+                  "inventory-table.html",
+                  "inventory-table.spec.ts",
+                  "inventory-table.ts"
+                ]
+              }
+            },
+            "landing": ["landing.css", "landing.html", "landing.spec.ts", "landing.ts"],
+            "orders": {
+              "root": ["orders.css", "orders.html", "orders.spec.ts", "orders.ts"],
+              "components": {
+                "order-filters": [
+                  "order-filters.css",
+                  "order-filters.html",
+                  "order-filters.spec.ts",
+                  "order-filters.ts"
+                ],
+                "order-form-modal": [
+                  "order-form-modal.css",
+                  "order-form-modal.html",
+                  "order-form-modal.spec.ts",
+                  "order-form-modal.ts"
+                ],
+                "order-kpis": [
+                  "order-kpis.css",
+                  "order-kpis.html",
+                  "order-kpis.spec.ts",
+                  "order-kpis.ts"
+                ],
+                "order-table": [
+                  "order-table.css",
+                  "order-table.html",
+                  "order-table.spec.ts",
+                  "order-table.ts"
+                ]
+              }
+            },
+            "scanner": {
+              "root": [
+                "invoice-scanner.css",
+                "invoice-scanner.html",
+                "invoice-scanner.spec.ts",
+                "invoice-scanner.ts"
               ],
-              "inventory-modal-tabs": [
-                "inventory-modal-tabs.css",
-                "inventory-modal-tabs.html",
-                "inventory-modal-tabs.spec.ts",
-                "inventory-modal-tabs.ts"
-              ],
-              "inventory-product-modal": [
-                "inventory-product-modal.css",
-                "inventory-product-modal.html",
-                "inventory-product-modal.spec.ts",
-                "inventory-product-modal.ts"
-              ],
-              "inventory-return-modal": [
-                "inventory-return-modal.css",
-                "inventory-return-modal.html",
-                "inventory-return-modal.spec.ts",
-                "inventory-return-modal.ts"
-              ],
-              "inventory-table": [
-                "inventory-table.css",
-                "inventory-table.html",
-                "inventory-table.spec.ts",
-                "inventory-table.ts"
-              ]
+              "components": {
+                "scanner-dropzone": [
+                  "scanner-dropzone.css",
+                  "scanner-dropzone.html",
+                  "scanner-dropzone.spec.ts",
+                  "scanner-dropzone.ts"
+                ],
+                "scanner-header": [
+                  "scanner-header.css",
+                  "scanner-header.html",
+                  "scanner-header.spec.ts",
+                  "scanner-header.ts"
+                ],
+                "scanner-header-form": [
+                  "scanner-header-form.css",
+                  "scanner-header-form.html",
+                  "scanner-header-form.spec.ts",
+                  "scanner-header-form.ts"
+                ],
+                "scanner-items-table": [
+                  "scanner-items-table.css",
+                  "scanner-items-table.html",
+                  "scanner-items-table.spec.ts",
+                  "scanner-items-table.ts"
+                ],
+                "scanner-summary-footer": [
+                  "scanner-summary-footer.css",
+                  "scanner-summary-footer.html",
+                  "scanner-summary-footer.spec.ts",
+                  "scanner-summary-footer.ts"
+                ]
+              }
+            },
+            "settings": ["settings.css", "settings.html", "settings.spec.ts", "settings.ts"],
+            "warehouses": {
+              "root": ["warehouses.css", "warehouses.html", "warehouses.spec.ts", "warehouses.ts"],
+              "components": {
+                "warehouse-filters": [
+                  "warehouse-filters.css",
+                  "warehouse-filters.html",
+                  "warehouse-filters.ts"
+                ],
+                "warehouse-form-modal": [
+                  "warehouse-form-modal.css",
+                  "warehouse-form-modal.html",
+                  "warehouse-form-modal.ts"
+                ],
+                "warehouse-kpis": [
+                  "warehouse-kpis.css",
+                  "warehouse-kpis.html",
+                  "warehouse-kpis.ts"
+                ],
+                "warehouse-table": [
+                  "warehouse-table.css",
+                  "warehouse-table.html",
+                  "warehouse-table.ts"
+                ]
+              }
             }
           },
-          "landing": ["landing.css", "landing.html", "landing.spec.ts", "landing.ts"],
-          "orders": {
-            "root": ["orders.css", "orders.html", "orders.spec.ts", "orders.ts"],
+          "shared": {
             "components": {
-              "order-filters": [
-                "order-filters.css",
-                "order-filters.html",
-                "order-filters.spec.ts",
-                "order-filters.ts"
-              ],
-              "order-form-modal": [
-                "order-form-modal.css",
-                "order-form-modal.html",
-                "order-form-modal.spec.ts",
-                "order-form-modal.ts"
-              ],
-              "order-kpis": [
-                "order-kpis.css",
-                "order-kpis.html",
-                "order-kpis.spec.ts",
-                "order-kpis.ts"
-              ],
-              "order-table": [
-                "order-table.css",
-                "order-table.html",
-                "order-table.spec.ts",
-                "order-table.ts"
-              ]
+              "layout": ["layout.css", "layout.html", "layout.spec.ts", "layout.ts"]
             }
-          },
-          "scanner": {
-            "root": [
-              "invoice-scanner.css",
-              "invoice-scanner.html",
-              "invoice-scanner.spec.ts",
-              "invoice-scanner.ts"
-            ],
-            "components": {
-              "scanner-dropzone": [
-                "scanner-dropzone.css",
-                "scanner-dropzone.html",
-                "scanner-dropzone.spec.ts",
-                "scanner-dropzone.ts"
-              ],
-              "scanner-header": [
-                "scanner-header.css",
-                "scanner-header.html",
-                "scanner-header.spec.ts",
-                "scanner-header.ts"
-              ],
-              "scanner-header-form": [
-                "scanner-header-form.css",
-                "scanner-header-form.html",
-                "scanner-header-form.spec.ts",
-                "scanner-header-form.ts"
-              ],
-              "scanner-items-table": [
-                "scanner-items-table.css",
-                "scanner-items-table.html",
-                "scanner-items-table.spec.ts",
-                "scanner-items-table.ts"
-              ],
-              "scanner-summary-footer": [
-                "scanner-summary-footer.css",
-                "scanner-summary-footer.html",
-                "scanner-summary-footer.spec.ts",
-                "scanner-summary-footer.ts"
-              ]
-            }
-          },
-          "settings": ["settings.css", "settings.html", "settings.spec.ts", "settings.ts"],
-          "warehouses": {
-            "root": ["warehouses.css", "warehouses.html", "warehouses.spec.ts", "warehouses.ts"],
-            "components": {
-              "warehouse-filters": [
-                "warehouse-filters.css",
-                "warehouse-filters.html",
-                "warehouse-filters.ts"
-              ],
-              "warehouse-form-modal": [
-                "warehouse-form-modal.css",
-                "warehouse-form-modal.html",
-                "warehouse-form-modal.ts"
-              ],
-              "warehouse-kpis": ["warehouse-kpis.css", "warehouse-kpis.html", "warehouse-kpis.ts"],
-              "warehouse-table": [
-                "warehouse-table.css",
-                "warehouse-table.html",
-                "warehouse-table.ts"
-              ]
-            }
-          }
-        },
-        "shared": {
-          "components": {
-            "layout": ["layout.css", "layout.html", "layout.spec.ts", "layout.ts"]
           }
         }
       }
